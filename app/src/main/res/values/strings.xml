@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Majhong</string>
+    <string name="arrow_up_content">ArrowUp</string>
+    <string name="arrow_down_content">ArrowDown</string>
+    <string name="person_add_content">AddPerson</string>
+</resources>
