@@ -1,6 +1,7 @@
 package com.example.majhong
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -70,36 +71,36 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
     ) {
+        val players = playerViewModel.players
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel.players[2], playerViewModel)
+                PlayerCard(playerViewModel, players[2])
             }
             Spacer(modifier = Modifier.weight(1f))
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel.players[3], playerViewModel)
+                PlayerCard(playerViewModel, players[3])
             }
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel.players[1], playerViewModel)
+                PlayerCard(playerViewModel, players[1])
             }
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel.players[0], playerViewModel)
+                PlayerCard(playerViewModel, players[0])
             }
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerCard(player: Player, playerViewModel: PlayerViewModel) {
+fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
     val context = LocalContext.current
     val showWinDialog = remember { mutableStateOf(false) }
     val showAddNameDialog = remember { mutableStateOf(false) }
@@ -120,6 +121,10 @@ fun PlayerCard(player: Player, playerViewModel: PlayerViewModel) {
             tai = playerViewModel.tai.value,
             calculateTotal = { currentPlayer, selectedPlayer, numberOfTai ->
                 playerViewModel.calculateTotal(currentPlayer, selectedPlayer, numberOfTai)
+            },
+            buttonOnClick = { currentPlayer, selectedPlayer, numberOfTai ->
+                playerViewModel.updateScore(currentPlayer, selectedPlayer, numberOfTai)
+                showWinDialog.value = false
             }
         )
     }
@@ -150,7 +155,7 @@ fun PlayerCard(player: Player, playerViewModel: PlayerViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
-                .padding(20.dp),
+                .padding(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -161,10 +166,10 @@ fun PlayerCard(player: Player, playerViewModel: PlayerViewModel) {
                     modifier = Modifier.padding(5.dp),
                     color = Color.Gray
                 )
+                Log.d("MainActivity", player.score.toString())
                 Text(
                     text = player.score.toString(),
-                    fontSize = 36.sp,
-                    modifier = Modifier.padding(5.dp),
+                    fontSize = 32.sp,
                     color = scoreColor
                 )
             } else {
@@ -226,7 +231,8 @@ fun WinDialog(
     selectedPlayer: (Int) -> Player,
     baseTai: Int,
     tai: Int,
-    calculateTotal: (Player, Player, Int) -> Int
+    calculateTotal: (Player, Player, Int) -> Int,
+    buttonOnClick: (Player, Player, Int) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss
@@ -402,7 +408,13 @@ fun WinDialog(
                         )
                     }
                 }
-                Button(onClick = {}) {
+                Button(onClick = {
+                    buttonOnClick(
+                        currentPlayer,
+                        selectedPlayerData.value,
+                        stateOfTai.value
+                    )
+                }) {
                     Text(text = "確定")
                 }
             }

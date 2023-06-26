@@ -1,6 +1,5 @@
 package com.example.majhong
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,32 +7,32 @@ import androidx.lifecycle.ViewModel
 fun Boolean.toInt() = if (this) 1 else 0
 
 class PlayerViewModel : ViewModel() {
-    private val _players = mutableStateListOf(Player("a"), Player("b"), Player("c"), Player("d"))
+
+    private val _players: MutableList<Player> =
+        mutableStateListOf(Player("a"), Player("b"), Player("c"), Player("d"))
     val players: List<Player> = _players
 
-    private val _baseTai = mutableStateOf(30)
-    val baseTai: State<Int> = _baseTai
+    var baseTai = mutableStateOf(30)
+        private set
 
-    private val _tai = mutableStateOf(10)
-    val tai: State<Int> = _tai
+    var tai = mutableStateOf(10)
+        private set
 
-    private val _banker = mutableStateOf(_players[0])
-    val banker: State<Player> = _banker
+    var banker = mutableStateOf(_players[0])
+        private set
 
-    private val _continueToBank = mutableStateOf(0)
-    val continueToBank: State<Int> = _continueToBank
-
-    fun addPlayer(name: String) {
-        val player = Player(name)
-        _players.add(player)
-    }
+    var continueToBank = mutableStateOf(0)
+        private set
 
     fun updatePlayerName(player: Player, name: String) {
-        player.name = name;
+        val index = _players.indexOf(player)
+        val newPlayer = Player(name, players[index].score)
+        _players[index] = newPlayer
     }
 
-    fun updatePlayerScore(player: Player, score: Int) {
-        player.score += score;
+    private fun updatePlayerScore(player: Player, score: Int) {
+        val index = _players.indexOf(player)
+        _players[index].score = score
     }
 
     fun getAllPlayerNamed(): Boolean {
@@ -44,18 +43,53 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun getBanker(): Player {
-        return _banker.value
+        return banker.value
     }
 
     fun calculateTotal(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int): Int {
-        val currentIsBanker = currentPlayer == _banker.value || selectedPlayer == _banker.value
+        val currentIsBanker = currentPlayer == banker.value || selectedPlayer == banker.value
         val selfDraw = currentPlayer == selectedPlayer
         val selfDrawAndNotBanker = selfDraw && !currentIsBanker
-        return (_baseTai.value + _tai.value * numberOfTai + currentIsBanker.toInt() * _tai.value * (2 * _continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * _tai.value * (2 * _continueToBank.value + 1)
+        return (baseTai.value + tai.value * numberOfTai + currentIsBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
     }
 
-    fun updateScore(currentPlayer: Player, chuckPlayer: Player) {
-
+    fun updateScore(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int) {
+        val currentIsBanker = currentPlayer == banker.value || selectedPlayer == banker.value
+        val selfDraw = currentPlayer == selectedPlayer
+        val selfDrawAndNotBanker = selfDraw && !currentIsBanker
+        val currentTotal =
+            (baseTai.value + tai.value * numberOfTai + currentIsBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
+        if (selfDrawAndNotBanker) {
+            for (i in players) {
+                if (currentPlayer != i) {
+                    if (i != banker.value) {
+                        updatePlayerScore(i, -(baseTai.value + tai.value * numberOfTai))
+                    } else {
+                        updatePlayerScore(
+                            i,
+                            -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+                        )
+                    }
+                }
+            }
+        } else if (selfDraw) {
+            for (i in players) {
+                if (currentPlayer != i) {
+                    updatePlayerScore(
+                        i,
+                        -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+                    )
+                }
+            }
+        } else if (currentIsBanker) {
+            updatePlayerScore(
+                selectedPlayer,
+                -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+            )
+        } else {
+            updatePlayerScore(selectedPlayer, -(baseTai.value + tai.value * numberOfTai))
+        }
+        updatePlayerScore(currentPlayer, currentTotal)
     }
 }
 
