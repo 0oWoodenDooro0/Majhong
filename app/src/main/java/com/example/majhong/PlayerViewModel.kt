@@ -1,5 +1,6 @@
 package com.example.majhong
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,7 +9,7 @@ fun Boolean.toInt() = if (this) 1 else 0
 
 class PlayerViewModel : ViewModel() {
 
-    private val _players: MutableList<Player> =
+    private val _players =
         mutableStateListOf(Player("a"), Player("b"), Player("c"), Player("d"))
     val players: List<Player> = _players
 
@@ -26,13 +27,12 @@ class PlayerViewModel : ViewModel() {
 
     fun updatePlayerName(player: Player, name: String) {
         val index = _players.indexOf(player)
-        val newPlayer = Player(name, players[index].score)
-        _players[index] = newPlayer
+        _players[index].name = name
     }
 
     private fun updatePlayerScore(player: Player, score: Int) {
         val index = _players.indexOf(player)
-        _players[index].score = score
+        _players[index].score.value += score
     }
 
     fun getAllPlayerNamed(): Boolean {
@@ -93,4 +93,4 @@ class PlayerViewModel : ViewModel() {
     }
 }
 
-data class Player(var name: String = "", var score: Int = 0)
+data class Player(var name: String = "", var score: MutableState<Int> = mutableStateOf(0))

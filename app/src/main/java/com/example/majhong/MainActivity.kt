@@ -105,7 +105,7 @@ fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
     val showWinDialog = remember { mutableStateOf(false) }
     val showAddNameDialog = remember { mutableStateOf(false) }
     val scoreColor =
-        if (player.score == 0) Color.Black else if (player.score > 0) PosScoreColor else NegScoreColor
+        if (player.score.value == 0) Color.Black else if (player.score.value > 0) PosScoreColor else NegScoreColor
     if (showWinDialog.value) {
         WinDialog(
             onDismiss = {
@@ -168,7 +168,7 @@ fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
                 )
                 Log.d("MainActivity", player.score.toString())
                 Text(
-                    text = player.score.toString(),
+                    text = player.score.value.toString(),
                     fontSize = 32.sp,
                     color = scoreColor
                 )
