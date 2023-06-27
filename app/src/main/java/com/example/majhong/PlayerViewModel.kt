@@ -13,6 +13,8 @@ class PlayerViewModel : ViewModel() {
         mutableStateListOf(Player("a"), Player("b"), Player("c"), Player("d"))
     val players: List<Player> = _players
 
+    private val _directions = listOf("東", "南", "西", "北")
+
     var baseTai = mutableStateOf(30)
         private set
 
@@ -23,6 +25,12 @@ class PlayerViewModel : ViewModel() {
         private set
 
     var continueToBank = mutableStateOf(0)
+        private set
+
+    var round = mutableStateOf(_directions[0])
+        private set
+
+    var wind = mutableStateOf(_directions[0])
         private set
 
     fun updatePlayerName(player: Player, name: String) {
@@ -42,14 +50,32 @@ class PlayerViewModel : ViewModel() {
         return true
     }
 
-    private fun updateNextBanker(){
+    fun draw() {
+        updateContinueToBank()
+    }
+
+    private fun updateNextBanker() {
         val index = players.indexOf(banker.value)
         banker.value = players[(index + 1) % 4]
         continueToBank.value = 0
+        updateWind()
     }
 
-    private fun updateContinueToBank(){
+    private fun updateContinueToBank() {
         continueToBank.value += 1
+    }
+
+    private fun updateWind() {
+        val index = _directions.indexOf(wind.value)
+        wind.value = _directions[(index + 1) % 4]
+        if (wind.value == "東") {
+            updateRound()
+        }
+    }
+
+    private fun updateRound() {
+        val index = _directions.indexOf(round.value)
+        round.value = _directions[(index + 1) % 4]
     }
 
     fun calculateTotal(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int): Int {
@@ -98,9 +124,9 @@ class PlayerViewModel : ViewModel() {
             updatePlayerScore(selectedPlayer, -(baseTai.value + tai.value * numberOfTai))
         }
         updatePlayerScore(currentPlayer, currentTotal)
-        if (currentIsBanker){
+        if (currentIsBanker) {
             updateContinueToBank()
-        }else{
+        } else {
             updateNextBanker()
         }
     }

@@ -55,8 +55,7 @@ class MainActivity : ComponentActivity() {
             MajhongTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
-                        modifier = Modifier.background(MainColor),
-                        verticalArrangement = Arrangement.Center
+                        modifier = Modifier.background(MainColor)
                     ) {
                         MainScreen(playerViewModel)
                     }
@@ -69,7 +68,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(playerViewModel: PlayerViewModel) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val players = playerViewModel.players
         val bankerPlayer = { playerViewModel.banker.value }
@@ -88,7 +89,23 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
         val updateScore: (Player, Player, Int) -> Unit = { current, selected, numberOfTai ->
             playerViewModel.updateScore(current, selected, numberOfTai)
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(15.dp)) {
+            Text(
+                text = "${playerViewModel.round.value}圈${playerViewModel.wind.value}風",
+                modifier = Modifier
+                    .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+                color = Color.Black,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Spacer(modifier = Modifier.padding(10.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(175.dp)
+        ) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
@@ -106,7 +123,11 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
             }
             Spacer(modifier = Modifier.weight(1f))
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(175.dp)
+        ) {
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
                     playerViewModel,
@@ -121,7 +142,17 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
                     updateScore
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = { playerViewModel.draw() }) {
+                    Text(text = "流局")
+                }
+            }
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
                     playerViewModel,
@@ -137,7 +168,11 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
                 )
             }
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(175.dp)
+        ) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
@@ -205,7 +240,7 @@ fun PlayerCard(
     }
     Card(shape = RoundedCornerShape(15.dp),
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(5.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(5.dp),
@@ -221,7 +256,6 @@ fun PlayerCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
                 .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -242,7 +276,9 @@ fun PlayerCard(
                     Text(
                         text = "莊",
                         modifier = Modifier
-                            .background(color = BankerColor, shape = RoundedCornerShape(5.dp))
+                            .background(
+                                color = BankerColor, shape = RoundedCornerShape(5.dp)
+                            )
                             .padding(5.dp),
                         color = Color.White,
                         fontSize = 16.sp,
@@ -252,7 +288,9 @@ fun PlayerCard(
                     Text(
                         text = "連${continueToBank()}",
                         modifier = Modifier
-                            .background(color = BankerColor, shape = RoundedCornerShape(5.dp))
+                            .background(
+                                color = BankerColor, shape = RoundedCornerShape(5.dp)
+                            )
                             .padding(5.dp),
                         color = Color.White,
                         fontSize = 16.sp,
