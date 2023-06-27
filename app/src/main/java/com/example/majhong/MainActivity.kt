@@ -72,26 +72,86 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
     ) {
         val players = playerViewModel.players
+        val bankerPlayer = { playerViewModel.banker.value }
+        val continueToBank = { playerViewModel.continueToBank.value }
+        val selectedPlayer: (Int) -> Player = { index ->
+            playerViewModel.players[index]
+        }
+        val baseTai = { playerViewModel.baseTai.value }
+        val tai = { playerViewModel.tai.value }
+        val calculateTotal: (Player, Player, Int) -> Int = { current, selected, numberOfTai ->
+            playerViewModel.calculateTotal(current, selected, numberOfTai)
+        }
+        val updateName: (Player, String) -> Unit = { current, playerName ->
+            playerViewModel.updatePlayerName(current, playerName)
+        }
+        val updateScore: (Player, Player, Int) -> Unit = { current, selected, numberOfTai ->
+            playerViewModel.updateScore(current, selected, numberOfTai)
+        }
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel, players[2])
+                PlayerCard(
+                    playerViewModel,
+                    players[2],
+                    bankerPlayer,
+                    continueToBank,
+                    selectedPlayer,
+                    baseTai,
+                    tai,
+                    calculateTotal,
+                    updateName,
+                    updateScore
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel, players[3])
+                PlayerCard(
+                    playerViewModel,
+                    players[3],
+                    bankerPlayer,
+                    continueToBank,
+                    selectedPlayer,
+                    baseTai,
+                    tai,
+                    calculateTotal,
+                    updateName,
+                    updateScore
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel, players[1])
+                PlayerCard(
+                    playerViewModel,
+                    players[1],
+                    bankerPlayer,
+                    continueToBank,
+                    selectedPlayer,
+                    baseTai,
+                    tai,
+                    calculateTotal,
+                    updateName,
+                    updateScore
+                )
             }
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
-                PlayerCard(playerViewModel, players[0])
+                PlayerCard(
+                    playerViewModel,
+                    players[0],
+                    bankerPlayer,
+                    continueToBank,
+                    selectedPlayer,
+                    baseTai,
+                    tai,
+                    calculateTotal,
+                    updateName,
+                    updateScore
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -100,39 +160,46 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
+fun PlayerCard(
+    playerViewModel: PlayerViewModel,
+    currentPlayer: Player,
+    bankerPlayer: () -> Player,
+    continueToBank: () -> Int,
+    selectedPlayer: (Int) -> Player,
+    baseTai: () -> Int,
+    tai: () -> Int,
+    calculateTotal: (Player, Player, Int) -> Int,
+    updateName: (Player, String) -> Unit,
+    updateScore: (Player, Player, Int) -> Unit
+) {
     val context = LocalContext.current
     val showWinDialog = remember { mutableStateOf(false) }
     val showAddNameDialog = remember { mutableStateOf(false) }
     val scoreColor =
-        if (player.score.value == 0) Color.Black else if (player.score.value > 0) PosScoreColor else NegScoreColor
+        if (currentPlayer.score.value == 0) Color.Black else if (currentPlayer.score.value > 0) PosScoreColor else NegScoreColor
     if (showWinDialog.value) {
-        WinDialog(
-            onDismiss = {
+        WinDialog(onDismiss = {
+            showWinDialog.value = false
+        },
+            bankerPlayer = bankerPlayer,
+            continueToBank = continueToBank,
+            currentPlayer = currentPlayer,
+            selectedPlayer = selectedPlayer,
+            baseTai = baseTai,
+            tai = tai,
+            calculateTotal = { selected, numberOfTai ->
+                calculateTotal(currentPlayer, selected, numberOfTai)
+            },
+            buttonOnClick = { selected, numberOfTai ->
+                updateScore(currentPlayer, selected, numberOfTai)
                 showWinDialog.value = false
-            },
-            bankerPlayer = playerViewModel.getBanker(),
-            continueToBank = playerViewModel.continueToBank.value,
-            currentPlayer = player,
-            selectedPlayer = { index ->
-                playerViewModel.players[index]
-            },
-            baseTai = playerViewModel.baseTai.value,
-            tai = playerViewModel.tai.value,
-            calculateTotal = { currentPlayer, selectedPlayer, numberOfTai ->
-                playerViewModel.calculateTotal(currentPlayer, selectedPlayer, numberOfTai)
-            },
-            buttonOnClick = { currentPlayer, selectedPlayer, numberOfTai ->
-                playerViewModel.updateScore(currentPlayer, selectedPlayer, numberOfTai)
-                showWinDialog.value = false
-            }
-        )
+            })
     }
     if (showAddNameDialog.value) {
         AddNameDialog(onDismiss = {
             showAddNameDialog.value = false
         }, buttonOnClick = { playerName ->
-            playerViewModel.updatePlayerName(player, playerName)
+            updateName(currentPlayer, playerName)
             showAddNameDialog.value = false
         })
     }
@@ -143,7 +210,7 @@ fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(5.dp),
         onClick = {
-            if (player.name == "") {
+            if (currentPlayer.name == "") {
                 showAddNameDialog.value = true
             } else if (!playerViewModel.getAllPlayerNamed()) {
                 Toast.makeText(context, "請先加入所有玩家", Toast.LENGTH_LONG).show()
@@ -159,16 +226,16 @@ fun PlayerCard(playerViewModel: PlayerViewModel, player: Player) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (player.name != "") {
+            if (currentPlayer.name != "") {
                 Text(
-                    text = player.name,
+                    text = currentPlayer.name,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(5.dp),
                     color = Color.Gray
                 )
-                Log.d("MainActivity", player.score.toString())
+                Log.d("MainActivity", currentPlayer.score.toString())
                 Text(
-                    text = player.score.value.toString(),
+                    text = currentPlayer.score.value.toString(),
                     fontSize = 32.sp,
                     color = scoreColor
                 )
@@ -225,14 +292,14 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
 @Composable
 fun WinDialog(
     onDismiss: () -> Unit,
-    bankerPlayer: Player,
-    continueToBank: Int,
+    bankerPlayer: () -> Player,
+    continueToBank: () -> Int,
     currentPlayer: Player,
     selectedPlayer: (Int) -> Player,
-    baseTai: Int,
-    tai: Int,
-    calculateTotal: (Player, Player, Int) -> Int,
-    buttonOnClick: (Player, Player, Int) -> Unit
+    baseTai: () -> Int,
+    tai: () -> Int,
+    calculateTotal: (Player, Int) -> Int,
+    buttonOnClick: (Player, Int) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss
@@ -334,31 +401,29 @@ fun WinDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = "底", fontSize = 12.sp, color = Color.Gray)
-                        Text(text = baseTai.toString(), fontSize = 12.sp)
+                        Text(text = baseTai().toString(), fontSize = 12.sp)
                     }
                     Column(
                         modifier = Modifier.padding(5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "牌型${stateOfTai.value}台",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            text = "牌型${stateOfTai.value}台", fontSize = 12.sp, color = Color.Gray
                         )
-                        Text(text = (tai * stateOfTai.value).toString(), fontSize = 12.sp)
+                        Text(text = (tai() * stateOfTai.value).toString(), fontSize = 12.sp)
                     }
-                    if (currentPlayer == bankerPlayer || selectedPlayerData.value == bankerPlayer) {
+                    if (currentPlayer == bankerPlayer() || selectedPlayerData.value == bankerPlayer()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "莊${2 * continueToBank + 1}台",
+                                text = "莊${2 * continueToBank() + 1}台",
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
                             Text(
-                                text = (tai * (2 * continueToBank + 1)).toString(),
+                                text = (tai() * (2 * continueToBank() + 1)).toString(),
                                 fontSize = 12.sp
                             )
                         }
@@ -372,18 +437,18 @@ fun WinDialog(
                             Text(text = "x3", fontSize = 12.sp)
                         }
                     }
-                    if (currentPlayer == selectedPlayerData.value && currentPlayer != bankerPlayer) {
+                    if (currentPlayer == selectedPlayerData.value && currentPlayer != bankerPlayer()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "莊${2 * continueToBank + 1}台",
+                                text = "莊${2 * continueToBank() + 1}台",
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
                             Text(
-                                text = (tai * (2 * continueToBank + 1)).toString(),
+                                text = (tai() * (2 * continueToBank() + 1)).toString(),
                                 fontSize = 12.sp
                             )
                         }
@@ -394,25 +459,18 @@ fun WinDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "總數",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            text = "總數", fontSize = 12.sp, color = Color.Gray
                         )
                         Text(
                             text = calculateTotal(
-                                currentPlayer,
-                                selectedPlayerData.value,
-                                stateOfTai.value
-                            ).toString(),
-                            fontSize = 12.sp
+                                selectedPlayerData.value, stateOfTai.value
+                            ).toString(), fontSize = 12.sp
                         )
                     }
                 }
                 Button(onClick = {
                     buttonOnClick(
-                        currentPlayer,
-                        selectedPlayerData.value,
-                        stateOfTai.value
+                        selectedPlayerData.value, stateOfTai.value
                     )
                 }) {
                     Text(text = "確定")

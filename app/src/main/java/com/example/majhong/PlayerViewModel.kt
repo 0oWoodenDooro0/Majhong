@@ -42,10 +42,6 @@ class PlayerViewModel : ViewModel() {
         return true
     }
 
-    fun getBanker(): Player {
-        return banker.value
-    }
-
     fun calculateTotal(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int): Int {
         val currentIsBanker = currentPlayer == banker.value || selectedPlayer == banker.value
         val selfDraw = currentPlayer == selectedPlayer
