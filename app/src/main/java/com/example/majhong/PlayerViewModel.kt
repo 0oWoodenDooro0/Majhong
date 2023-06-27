@@ -35,11 +35,21 @@ class PlayerViewModel : ViewModel() {
         _players[index].score.value += score
     }
 
-    fun getAllPlayerNamed(): Boolean {
+    fun isAllPlayerNamed(): Boolean {
         for (i in 0 until _players.size - 1) {
             if (players[i].name == "") return false
         }
         return true
+    }
+
+    private fun updateNextBanker(){
+        val index = players.indexOf(banker.value)
+        banker.value = players[(index + 1) % 4]
+        continueToBank.value = 0
+    }
+
+    private fun updateContinueToBank(){
+        continueToBank.value += 1
     }
 
     fun calculateTotal(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int): Int {
@@ -50,11 +60,13 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun updateScore(currentPlayer: Player, selectedPlayer: Player, numberOfTai: Int) {
-        val currentIsBanker = currentPlayer == banker.value || selectedPlayer == banker.value
+        val selectedIsBanker = selectedPlayer == banker.value
+        val currentIsBanker = currentPlayer == banker.value
+        val isBanker = currentIsBanker || selectedIsBanker
         val selfDraw = currentPlayer == selectedPlayer
-        val selfDrawAndNotBanker = selfDraw && !currentIsBanker
+        val selfDrawAndNotBanker = selfDraw && !isBanker
         val currentTotal =
-            (baseTai.value + tai.value * numberOfTai + currentIsBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
+            (baseTai.value + tai.value * numberOfTai + isBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
         if (selfDrawAndNotBanker) {
             for (i in players) {
                 if (currentPlayer != i) {
@@ -77,7 +89,7 @@ class PlayerViewModel : ViewModel() {
                     )
                 }
             }
-        } else if (currentIsBanker) {
+        } else if (isBanker) {
             updatePlayerScore(
                 selectedPlayer,
                 -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
@@ -86,6 +98,11 @@ class PlayerViewModel : ViewModel() {
             updatePlayerScore(selectedPlayer, -(baseTai.value + tai.value * numberOfTai))
         }
         updatePlayerScore(currentPlayer, currentTotal)
+        if (currentIsBanker){
+            updateContinueToBank()
+        }else{
+            updateNextBanker()
+        }
     }
 }
 

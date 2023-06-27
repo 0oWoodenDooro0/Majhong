@@ -1,7 +1,6 @@
 package com.example.majhong
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.majhong.ui.theme.BankerColor
 import com.example.majhong.ui.theme.MainColor
 import com.example.majhong.ui.theme.MajhongTheme
 import com.example.majhong.ui.theme.NegScoreColor
@@ -212,7 +212,7 @@ fun PlayerCard(
         onClick = {
             if (currentPlayer.name == "") {
                 showAddNameDialog.value = true
-            } else if (!playerViewModel.getAllPlayerNamed()) {
+            } else if (!playerViewModel.isAllPlayerNamed()) {
                 Toast.makeText(context, "請先加入所有玩家", Toast.LENGTH_LONG).show()
             } else {
                 showWinDialog.value = true
@@ -222,23 +222,43 @@ fun PlayerCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
-                .padding(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (currentPlayer.name != "") {
                 Text(
                     text = currentPlayer.name,
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     modifier = Modifier.padding(5.dp),
                     color = Color.Gray
                 )
-                Log.d("MainActivity", currentPlayer.score.toString())
                 Text(
                     text = currentPlayer.score.value.toString(),
+                    modifier = Modifier.padding(10.dp),
                     fontSize = 32.sp,
                     color = scoreColor
                 )
+                if (currentPlayer == bankerPlayer() && continueToBank() == 0) {
+                    Text(
+                        text = "莊",
+                        modifier = Modifier
+                            .background(color = BankerColor, shape = RoundedCornerShape(5.dp))
+                            .padding(5.dp),
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                } else if (currentPlayer == bankerPlayer()) {
+                    Text(
+                        text = "連${continueToBank()}",
+                        modifier = Modifier
+                            .background(color = BankerColor, shape = RoundedCornerShape(5.dp))
+                            .padding(5.dp),
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_person_add_alt_1_24),
