@@ -103,17 +103,17 @@ fun PlayerCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 if (currentPlayerState.name != "") {
-                    Text(
+                    AutoSizeText(
                         text = currentPlayerState.name,
-                        fontSize = 20.sp,
+                        maxTextSize = 20.sp,
                         color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
-                    Text(
+                    AutoSizeText(
                         text = currentPlayerState.score.value.toString(),
-                        modifier = Modifier.padding(10.dp),
-                        fontSize = 32.sp,
-                        color = scoreColor
+                        maxTextSize = 32.sp,
+                        color = scoreColor,
+                        textAlign = TextAlign.Center
                     )
                     if (currentPlayerState == bankerPlayerState() && continueToBank() == 0) {
                         Text(
