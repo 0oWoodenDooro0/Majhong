@@ -3,5 +3,8 @@
     <string name="arrow_up_content">ArrowUp</string>
     <string name="arrow_down_content">ArrowDown</string>
     <string name="person_add_content">AddPerson</string>
+    <string name="add_content">NewMajhong</string>
+    <string name="undo_content">Undo</string>
+    <string name="swap_vert_content">SwapPlayer</string>
     <string name="casino_content">Dice</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.majhong.R
 
 @Composable
@@ -22,34 +23,47 @@ fun MainToolBar() {
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(10.dp)
-                .clickable { },
-            painterResourceId = R.drawable.outline_casino_24,
-            stringResource = R.string.casino_content
+                .clickable { }
+                .padding(10.dp),
+            painterResourceId = R.drawable.baseline_add_24,
+            stringResource = R.string.add_content,
+            actionDescription = "新牌局"
         )
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(10.dp)
-                .clickable { },
-            painterResourceId = R.drawable.outline_casino_24,
-            stringResource = R.string.casino_content
+                .clickable { }
+                .padding(10.dp),
+            painterResourceId = R.drawable.baseline_undo_24,
+            stringResource = R.string.undo_content,
+            actionDescription = "還原"
         )
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(10.dp)
-                .clickable { },
-            painterResourceId = R.drawable.outline_casino_24,
-            stringResource = R.string.casino_content
+                .clickable { }
+                .padding(10.dp),
+            painterResourceId = R.drawable.baseline_person_add_alt_1_24,
+            stringResource = R.string.person_add_content,
+            actionDescription = "新增玩家"
         )
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(10.dp)
-                .clickable { },
+                .clickable { }
+                .padding(10.dp),
+            painterResourceId = R.drawable.baseline_swap_vert_24,
+            stringResource = R.string.swap_vert_content,
+            actionDescription = "換人/換位"
+        )
+        ActionButton(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { }
+                .padding(10.dp),
             painterResourceId = R.drawable.outline_casino_24,
-            stringResource = R.string.casino_content
+            stringResource = R.string.casino_content,
+            actionDescription = "擲骰"
         )
     }
 }
@@ -58,7 +72,8 @@ fun MainToolBar() {
 fun ActionButton(
     modifier: Modifier,
     painterResourceId: Int,
-    stringResource: Int
+    stringResource: Int,
+    actionDescription: String
 ) {
     Column(
         modifier = modifier,
@@ -70,6 +85,9 @@ fun ActionButton(
             contentDescription = stringResource(stringResource),
             modifier = Modifier.padding(5.dp)
         )
-        Text(text = "擲骰", modifier = Modifier.padding(5.dp))
+        Text(
+            text = actionDescription,
+            fontSize = 12.sp
+        )
     }
 }
