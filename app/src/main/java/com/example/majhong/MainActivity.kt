@@ -39,6 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
+import com.example.majhong.database.MajhongDatabase
 import com.example.majhong.ui.theme.BankerColor
 import com.example.majhong.ui.theme.MainColor
 import com.example.majhong.ui.theme.MajhongTheme
@@ -47,17 +51,33 @@ import com.example.majhong.ui.theme.PosScoreColor
 
 class MainActivity : ComponentActivity() {
 
-    private val playerViewModel: PlayerViewModel by viewModels()
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext, MajhongDatabase::class.java, "player.db"
+        )
+            .allowMainThreadQueries()
+//            .fallbackToDestructiveMigration()
+            .build()
+    }
+    @Suppress("UNCHECKED_CAST")
+    private val majhongViewModel by viewModels<MajhongViewModel>(factoryProducer = {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MajhongViewModel(db.playerDao, db.majhongDao) as T
+            }
+        }
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+//            db.clearAllTables()
             MajhongTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
                         modifier = Modifier.background(MainColor)
                     ) {
-                        MainScreen(playerViewModel)
+                        MainScreen(majhongViewModel)
                     }
                 }
             }
@@ -66,34 +86,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(playerViewModel: PlayerViewModel) {
+fun MainScreen(viewModel: MajhongViewModel) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val players = playerViewModel.players
-        val bankerPlayer = { playerViewModel.banker.value }
-        val continueToBank = { playerViewModel.continueToBank.value }
-        val selectedPlayer: (Int) -> Player = { index ->
-            playerViewModel.players[index]
+        val players = viewModel.playerStates
+        val bankerPlayer = { viewModel.getBanker() }
+        val continueToBank = { viewModel.continueToBank.value }
+        val selectedPlayerState: (Int) -> PlayerState = { index ->
+            viewModel.playerStates[index]
         }
-        val baseTai = { playerViewModel.baseTai.value }
-        val tai = { playerViewModel.tai.value }
-        val calculateTotal: (Player, Player, Int) -> Int = { current, selected, numberOfTai ->
-            playerViewModel.calculateTotal(current, selected, numberOfTai)
+        val baseTai = { viewModel.baseTai.value }
+        val tai = { viewModel.tai.value }
+        val isAllPlayerNamed = { viewModel.isAllPlayerNamed() }
+        val calculateTotal: (PlayerState, PlayerState, Int) -> Int =
+            { current, selected, numberOfTai ->
+                viewModel.calculateTotal(current, selected, numberOfTai)
+            }
+        val updateName: (PlayerState, String) -> Unit = { current, playerName ->
+            viewModel.updatePlayerName(current, playerName)
         }
-        val updateName: (Player, String) -> Unit = { current, playerName ->
-            playerViewModel.updatePlayerName(current, playerName)
-        }
-        val updateScore: (Player, Player, Int) -> Unit = { current, selected, numberOfTai ->
-            playerViewModel.updateScore(current, selected, numberOfTai)
-        }
+        val updateScore: (PlayerState, PlayerState, Int) -> Unit =
+            { current, selected, numberOfTai ->
+                viewModel.updateScore(current, selected, numberOfTai)
+            }
         Row(modifier = Modifier.padding(15.dp)) {
             Text(
-                text = "${playerViewModel.round.value}圈${playerViewModel.wind.value}風",
+                text = "${viewModel.directions[viewModel.round.value]}圈${viewModel.directions[viewModel.wind.value]}風",
                 modifier = Modifier
-                    .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                    .background(
+                        color = Color.White, shape = RoundedCornerShape(10.dp)
+                    )
                     .padding(10.dp),
                 color = Color.Black,
                 fontSize = 16.sp,
@@ -109,13 +134,13 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
-                    playerViewModel,
                     players[2],
                     bankerPlayer,
                     continueToBank,
-                    selectedPlayer,
+                    selectedPlayerState,
                     baseTai,
                     tai,
+                    isAllPlayerNamed,
                     calculateTotal,
                     updateName,
                     updateScore
@@ -130,13 +155,13 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
-                    playerViewModel,
                     players[3],
                     bankerPlayer,
                     continueToBank,
-                    selectedPlayer,
+                    selectedPlayerState,
                     baseTai,
                     tai,
+                    isAllPlayerNamed,
                     calculateTotal,
                     updateName,
                     updateScore
@@ -149,19 +174,19 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Button(onClick = { playerViewModel.draw() }) {
+                Button(onClick = { viewModel.draw() }) {
                     Text(text = "流局")
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
-                    playerViewModel,
                     players[1],
                     bankerPlayer,
                     continueToBank,
-                    selectedPlayer,
+                    selectedPlayerState,
                     baseTai,
                     tai,
+                    isAllPlayerNamed,
                     calculateTotal,
                     updateName,
                     updateScore
@@ -176,13 +201,13 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
             Spacer(modifier = Modifier.weight(1f))
             Column(modifier = Modifier.weight(1f)) {
                 PlayerCard(
-                    playerViewModel,
                     players[0],
                     bankerPlayer,
                     continueToBank,
-                    selectedPlayer,
+                    selectedPlayerState,
                     baseTai,
                     tai,
+                    isAllPlayerNamed,
                     calculateTotal,
                     updateName,
                     updateScore
@@ -196,37 +221,37 @@ fun MainScreen(playerViewModel: PlayerViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerCard(
-    playerViewModel: PlayerViewModel,
-    currentPlayer: Player,
-    bankerPlayer: () -> Player,
+    currentPlayerState: PlayerState,
+    bankerPlayerState: () -> PlayerState,
     continueToBank: () -> Int,
-    selectedPlayer: (Int) -> Player,
+    selectedPlayerState: (Int) -> PlayerState,
     baseTai: () -> Int,
     tai: () -> Int,
-    calculateTotal: (Player, Player, Int) -> Int,
-    updateName: (Player, String) -> Unit,
-    updateScore: (Player, Player, Int) -> Unit
+    isAllPlayerNamed: () -> Boolean,
+    calculateTotal: (PlayerState, PlayerState, Int) -> Int,
+    updateName: (PlayerState, String) -> Unit,
+    updateScore: (PlayerState, PlayerState, Int) -> Unit
 ) {
     val context = LocalContext.current
     val showWinDialog = remember { mutableStateOf(false) }
     val showAddNameDialog = remember { mutableStateOf(false) }
     val scoreColor =
-        if (currentPlayer.score.value == 0) Color.Black else if (currentPlayer.score.value > 0) PosScoreColor else NegScoreColor
+        if (currentPlayerState.score.value == 0) Color.Black else if (currentPlayerState.score.value > 0) PosScoreColor else NegScoreColor
     if (showWinDialog.value) {
         WinDialog(onDismiss = {
             showWinDialog.value = false
         },
-            bankerPlayer = bankerPlayer,
+            bankerPlayerState = bankerPlayerState,
             continueToBank = continueToBank,
-            currentPlayer = currentPlayer,
-            selectedPlayer = selectedPlayer,
+            currentPlayerState = currentPlayerState,
+            selectedPlayerState = selectedPlayerState,
             baseTai = baseTai,
             tai = tai,
             calculateTotal = { selected, numberOfTai ->
-                calculateTotal(currentPlayer, selected, numberOfTai)
+                calculateTotal(currentPlayerState, selected, numberOfTai)
             },
             buttonOnClick = { selected, numberOfTai ->
-                updateScore(currentPlayer, selected, numberOfTai)
+                updateScore(currentPlayerState, selected, numberOfTai)
                 showWinDialog.value = false
             })
     }
@@ -234,7 +259,7 @@ fun PlayerCard(
         AddNameDialog(onDismiss = {
             showAddNameDialog.value = false
         }, buttonOnClick = { playerName ->
-            updateName(currentPlayer, playerName)
+            updateName(currentPlayerState, playerName)
             showAddNameDialog.value = false
         })
     }
@@ -245,9 +270,9 @@ fun PlayerCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(5.dp),
         onClick = {
-            if (currentPlayer.name == "") {
+            if (currentPlayerState.name == "") {
                 showAddNameDialog.value = true
-            } else if (!playerViewModel.isAllPlayerNamed()) {
+            } else if (!isAllPlayerNamed()) {
                 Toast.makeText(context, "請先加入所有玩家", Toast.LENGTH_LONG).show()
             } else {
                 showWinDialog.value = true
@@ -255,24 +280,25 @@ fun PlayerCard(
         }) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            if (currentPlayer.name != "") {
+            if (currentPlayerState.name != "") {
                 Text(
-                    text = currentPlayer.name,
+                    text = currentPlayerState.name,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(5.dp),
                     color = Color.Gray
                 )
                 Text(
-                    text = currentPlayer.score.value.toString(),
+                    text = currentPlayerState.score.value.toString(),
                     modifier = Modifier.padding(10.dp),
                     fontSize = 32.sp,
                     color = scoreColor
                 )
-                if (currentPlayer == bankerPlayer() && continueToBank() == 0) {
+                if (currentPlayerState == bankerPlayerState() && continueToBank() == 0) {
                     Text(
                         text = "莊",
                         modifier = Modifier
@@ -284,7 +310,7 @@ fun PlayerCard(
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                     )
-                } else if (currentPlayer == bankerPlayer()) {
+                } else if (currentPlayerState == bankerPlayerState()) {
                     Text(
                         text = "連${continueToBank()}",
                         modifier = Modifier
@@ -350,14 +376,14 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
 @Composable
 fun WinDialog(
     onDismiss: () -> Unit,
-    bankerPlayer: () -> Player,
+    bankerPlayerState: () -> PlayerState,
     continueToBank: () -> Int,
-    currentPlayer: Player,
-    selectedPlayer: (Int) -> Player,
+    currentPlayerState: PlayerState,
+    selectedPlayerState: (Int) -> PlayerState,
     baseTai: () -> Int,
     tai: () -> Int,
-    calculateTotal: (Player, Int) -> Int,
-    buttonOnClick: (Player, Int) -> Unit
+    calculateTotal: (PlayerState, Int) -> Int,
+    buttonOnClick: (PlayerState, Int) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss
@@ -370,7 +396,7 @@ fun WinDialog(
             val stateOfTai = remember { mutableStateOf(0) }
             val stateOfPlayer = remember { mutableStateOf(0) }
             val selectedPlayerData = remember {
-                mutableStateOf(selectedPlayer(stateOfPlayer.value))
+                mutableStateOf(selectedPlayerState(stateOfPlayer.value))
             }
             Column(
                 modifier = Modifier.padding(10.dp),
@@ -421,7 +447,7 @@ fun WinDialog(
                         )
                         Button(onClick = {
                             if (stateOfPlayer.value < 3) stateOfPlayer.value += 1
-                            selectedPlayerData.value = selectedPlayer(stateOfPlayer.value)
+                            selectedPlayerData.value = selectedPlayerState(stateOfPlayer.value)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -429,13 +455,13 @@ fun WinDialog(
                             )
                         }
                         Text(
-                            text = if (selectedPlayerData.value == currentPlayer) "自摸" else selectedPlayerData.value.name,
+                            text = if (selectedPlayerData.value == currentPlayerState) "自摸" else selectedPlayerData.value.name,
                             fontSize = 20.sp,
                             modifier = Modifier.padding(10.dp)
                         )
                         Button(onClick = {
                             if (stateOfPlayer.value > 0) stateOfPlayer.value -= 1
-                            selectedPlayerData.value = selectedPlayer(stateOfPlayer.value)
+                            selectedPlayerData.value = selectedPlayerState(stateOfPlayer.value)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
@@ -470,7 +496,7 @@ fun WinDialog(
                         )
                         Text(text = (tai() * stateOfTai.value).toString(), fontSize = 12.sp)
                     }
-                    if (currentPlayer == bankerPlayer() || selectedPlayerData.value == bankerPlayer()) {
+                    if (currentPlayerState == bankerPlayerState() || selectedPlayerData.value == bankerPlayerState()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -486,7 +512,7 @@ fun WinDialog(
                             )
                         }
                     }
-                    if (currentPlayer == selectedPlayerData.value) {
+                    if (currentPlayerState == selectedPlayerData.value) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -495,7 +521,7 @@ fun WinDialog(
                             Text(text = "x3", fontSize = 12.sp)
                         }
                     }
-                    if (currentPlayer == selectedPlayerData.value && currentPlayer != bankerPlayer()) {
+                    if (currentPlayerState == selectedPlayerData.value && currentPlayerState != bankerPlayerState()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
