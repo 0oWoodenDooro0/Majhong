@@ -12,8 +12,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +33,7 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
             modifier = Modifier.wrapContentSize(),
             shadowElevation = 5.dp
         ) {
-            val name = remember { mutableStateOf("") }
+            var name by remember { mutableStateOf("") }
             val maxChar = 5
             Column(
                 modifier = Modifier.padding(10.dp),
@@ -40,18 +42,18 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
                 Text(
                     text = "輸入玩家名稱", fontSize = 20.sp, modifier = Modifier.padding(10.dp)
                 )
-                TextField(value = name.value,
-                    onValueChange = { if (it.length <= maxChar) name.value = it },
+                TextField(value = name,
+                    onValueChange = { if (it.length <= maxChar) name = it },
                     label = { Text("玩家名稱") },
                     singleLine = true,
                     supportingText = {
                         Text(
-                            text = "${name.value.length} / $maxChar",
+                            text = "${name.length} / $maxChar",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End,
                         )
                     })
-                Button(onClick = { buttonOnClick(name.value) }) {
+                Button(onClick = { buttonOnClick(name) }) {
                     Text(text = "確定")
                 }
             }

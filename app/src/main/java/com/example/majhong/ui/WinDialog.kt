@@ -17,8 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,11 +52,9 @@ fun WinDialog(
             modifier = Modifier.wrapContentSize(),
             shadowElevation = 5.dp
         ) {
-            val stateOfTai = remember { mutableStateOf(0) }
-            val stateOfPlayer = remember { mutableStateOf(0) }
-            val selectedPlayerData = remember {
-                mutableStateOf(selectedPlayerState(stateOfPlayer.value))
-            }
+            var stateOfTai by remember { mutableStateOf(0) }
+            var stateOfPlayer by remember { mutableStateOf(0) }
+            var selectedPlayerData by remember { mutableStateOf(selectedPlayerState(stateOfPlayer)) }
             Column(
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -71,7 +71,7 @@ fun WinDialog(
                             modifier = Modifier.padding(bottom = 15.dp)
                         )
                         Button(onClick = {
-                            if (stateOfTai.value < 50) stateOfTai.value += 1
+                            if (stateOfTai < 50) stateOfTai += 1
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -79,12 +79,12 @@ fun WinDialog(
                             )
                         }
                         Text(
-                            text = stateOfTai.value.toString(),
+                            text = stateOfTai.toString(),
                             fontSize = 20.sp,
                             modifier = Modifier.padding(10.dp)
                         )
                         Button(onClick = {
-                            if (stateOfTai.value > 0) stateOfTai.value -= 1
+                            if (stateOfTai > 0) stateOfTai -= 1
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
@@ -103,8 +103,8 @@ fun WinDialog(
                             modifier = Modifier.padding(bottom = 15.dp)
                         )
                         Button(onClick = {
-                            if (stateOfPlayer.value < 3) stateOfPlayer.value += 1
-                            selectedPlayerData.value = selectedPlayerState(stateOfPlayer.value)
+                            if (stateOfPlayer < 3) stateOfPlayer += 1
+                            selectedPlayerData = selectedPlayerState(stateOfPlayer)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -112,13 +112,13 @@ fun WinDialog(
                             )
                         }
                         Text(
-                            text = if (selectedPlayerData.value == currentPlayerState) "自摸" else selectedPlayerData.value.name,
+                            text = if (selectedPlayerData == currentPlayerState) "自摸" else selectedPlayerData.name,
                             fontSize = 20.sp,
                             modifier = Modifier.padding(10.dp)
                         )
                         Button(onClick = {
-                            if (stateOfPlayer.value > 0) stateOfPlayer.value -= 1
-                            selectedPlayerData.value = selectedPlayerState(stateOfPlayer.value)
+                            if (stateOfPlayer > 0) stateOfPlayer -= 1
+                            selectedPlayerData = selectedPlayerState(stateOfPlayer)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
@@ -149,11 +149,11 @@ fun WinDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "牌型${stateOfTai.value}台", fontSize = 12.sp, color = Color.Gray
+                            text = "牌型${stateOfTai}台", fontSize = 12.sp, color = Color.Gray
                         )
-                        Text(text = (tai() * stateOfTai.value).toString(), fontSize = 12.sp)
+                        Text(text = (tai() * stateOfTai).toString(), fontSize = 12.sp)
                     }
-                    if (currentPlayerState == bankerPlayerState() || selectedPlayerData.value == bankerPlayerState()) {
+                    if (currentPlayerState == bankerPlayerState() || selectedPlayerData == bankerPlayerState()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -169,7 +169,7 @@ fun WinDialog(
                             )
                         }
                     }
-                    if (currentPlayerState == selectedPlayerData.value) {
+                    if (currentPlayerState == selectedPlayerData) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -178,7 +178,7 @@ fun WinDialog(
                             Text(text = "x3", fontSize = 12.sp)
                         }
                     }
-                    if (currentPlayerState == selectedPlayerData.value && currentPlayerState != bankerPlayerState()) {
+                    if (currentPlayerState == selectedPlayerData && currentPlayerState != bankerPlayerState()) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -204,14 +204,14 @@ fun WinDialog(
                         )
                         Text(
                             text = calculateTotal(
-                                selectedPlayerData.value, stateOfTai.value
+                                selectedPlayerData, stateOfTai
                             ).toString(), fontSize = 12.sp
                         )
                     }
                 }
                 Button(onClick = {
                     buttonOnClick(
-                        selectedPlayerData.value, stateOfTai.value
+                        selectedPlayerData, stateOfTai
                     )
                 }) {
                     Text(text = "確定")

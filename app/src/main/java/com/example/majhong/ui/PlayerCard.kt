@@ -13,8 +13,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,13 +49,13 @@ fun PlayerCard(
     updateScore: (PlayerState, PlayerState, Int) -> Unit
 ) {
     val context = LocalContext.current
-    val showWinDialog = remember { mutableStateOf(false) }
-    val showAddNameDialog = remember { mutableStateOf(false) }
+    var showWinDialog by remember { mutableStateOf(false) }
+    var showAddNameDialog by remember { mutableStateOf(false) }
     val scoreColor =
         if (currentPlayerState.score.value == 0) Color.Black else if (currentPlayerState.score.value > 0) PosScoreColor else NegScoreColor
-    if (showWinDialog.value) {
+    if (showWinDialog) {
         WinDialog(onDismiss = {
-            showWinDialog.value = false
+            showWinDialog = false
         },
             bankerPlayerState = bankerPlayerState,
             continueToBank = continueToBank,
@@ -66,15 +68,15 @@ fun PlayerCard(
             },
             buttonOnClick = { selected, numberOfTai ->
                 updateScore(currentPlayerState, selected, numberOfTai)
-                showWinDialog.value = false
+                showWinDialog = false
             })
     }
-    if (showAddNameDialog.value) {
+    if (showAddNameDialog) {
         AddNameDialog(onDismiss = {
-            showAddNameDialog.value = false
+            showAddNameDialog = false
         }, buttonOnClick = { playerName ->
             updateName(currentPlayerState, playerName)
-            showAddNameDialog.value = false
+            showAddNameDialog = false
         })
     }
     Column(modifier = modifier) {
@@ -86,11 +88,11 @@ fun PlayerCard(
             elevation = CardDefaults.cardElevation(5.dp),
             onClick = {
                 if (currentPlayerState.name == "") {
-                    showAddNameDialog.value = true
+                    showAddNameDialog = true
                 } else if (!isAllPlayerNamed()) {
                     Toast.makeText(context, "請先加入所有玩家", Toast.LENGTH_LONG).show()
                 } else {
-                    showWinDialog.value = true
+                    showWinDialog = true
                 }
             }) {
             Column(
@@ -104,8 +106,8 @@ fun PlayerCard(
                     Text(
                         text = currentPlayerState.name,
                         fontSize = 20.sp,
-                        modifier = Modifier.padding(5.dp),
-                        color = Color.Gray
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
                     )
                     Text(
                         text = currentPlayerState.score.value.toString(),

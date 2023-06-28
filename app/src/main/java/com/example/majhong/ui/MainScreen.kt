@@ -31,12 +31,12 @@ fun MainScreen(viewModel: MajhongViewModel) {
     ) {
         val players = viewModel.playerStates
         val bankerPlayer = { viewModel.getBanker() }
-        val continueToBank = { viewModel.continueToBank.value }
+        val continueToBank = { viewModel.continueToBank }
         val selectedPlayerState: (Int) -> PlayerState = { index ->
             viewModel.playerStates[index]
         }
-        val baseTai = { viewModel.baseTai.value }
-        val tai = { viewModel.tai.value }
+        val baseTai = { viewModel.baseTai }
+        val tai = { viewModel.tai }
         val isAllPlayerNamed = { viewModel.isAllPlayerNamed() }
         val calculateTotal: (PlayerState, PlayerState, Int) -> Int =
             { current, selected, numberOfTai ->
@@ -51,7 +51,7 @@ fun MainScreen(viewModel: MajhongViewModel) {
             }
         Row(modifier = Modifier.padding(15.dp)) {
             Text(
-                text = "${viewModel.directions[viewModel.round.value]}圈${viewModel.directions[viewModel.wind.value]}風",
+                text = "${viewModel.directions[viewModel.round]}圈${viewModel.directions[viewModel.wind]}風",
                 modifier = Modifier
                     .background(
                         color = Color.White, shape = RoundedCornerShape(10.dp)

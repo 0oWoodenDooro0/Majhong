@@ -1,7 +1,9 @@
 package com.example.majhong
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.majhong.database.Majhong
@@ -24,21 +26,21 @@ class MajhongViewModel(
 
     val directions = listOf("東", "南", "西", "北")
 
-    private val banker = mutableStateOf(0)
+    private var banker by mutableStateOf(0)
 
-    var continueToBank = mutableStateOf(0)
+    var continueToBank by mutableStateOf(0)
         private set
 
-    var round = mutableStateOf(0)
+    var round by mutableStateOf(0)
         private set
 
-    var wind = mutableStateOf(0)
+    var wind by mutableStateOf(0)
         private set
 
-    var baseTai = mutableStateOf(30)
+    var baseTai by mutableStateOf(30)
         private set
 
-    var tai = mutableStateOf(10)
+    var tai by mutableStateOf(10)
         private set
 
     private fun onEvent(event: MajhongEvent) {
@@ -76,18 +78,18 @@ class MajhongViewModel(
             }
             val majhong = majhongDao.getMajhongById()
             if (majhong != null) {
-                banker.value = majhong.banker
-                continueToBank.value = majhong.continueToBank
-                round.value = majhong.round
-                wind.value = majhong.wind
-                baseTai.value = majhong.baseTai
-                tai.value = majhong.tai
+                banker = majhong.banker
+                continueToBank = majhong.continueToBank
+                round = majhong.round
+                wind = majhong.wind
+                baseTai = majhong.baseTai
+                tai = majhong.tai
             }
         }
     }
 
     fun getBanker(): PlayerState {
-        return _playerStates[banker.value]
+        return _playerStates[banker]
     }
 
     fun updatePlayerName(playerState: PlayerState, name: String) {
@@ -115,48 +117,48 @@ class MajhongViewModel(
 
     private fun updateNextBanker() {
         val index = playerStates.indexOf(getBanker())
-        banker.value = (index + 1) % 4
-        continueToBank.value = 0
+        banker = (index + 1) % 4
+        continueToBank = 0
         updateWind()
     }
 
     private fun updateContinueToBank() {
-        continueToBank.value += 1
+        continueToBank += 1
         onEvent(
             MajhongEvent.UpsertMajhong(
                 Majhong(
-                    banker.value,
-                    continueToBank.value,
-                    round.value,
-                    wind.value,
-                    baseTai.value,
-                    tai.value
+                    banker,
+                    continueToBank,
+                    round,
+                    wind,
+                    baseTai,
+                    tai
                 )
             )
         )
     }
 
     private fun updateWind() {
-        wind.value = (wind.value + 1) % 4
-        if (wind.value == 0) {
+        wind = (wind + 1) % 4
+        if (wind == 0) {
             updateRound()
         }
         onEvent(
             MajhongEvent.UpsertMajhong(
                 Majhong(
-                    banker.value,
-                    continueToBank.value,
-                    round.value,
-                    wind.value,
-                    baseTai.value,
-                    tai.value
+                    banker,
+                    continueToBank,
+                    round,
+                    wind,
+                    baseTai,
+                    tai
                 )
             )
         )
     }
 
     private fun updateRound() {
-        round.value = (round.value + 1) % 4
+        round = (round + 1) % 4
     }
 
     fun calculateTotal(
@@ -168,7 +170,7 @@ class MajhongViewModel(
             currentPlayerState == getBanker() || selectedPlayerState == getBanker()
         val selfDraw = currentPlayerState == selectedPlayerState
         val selfDrawAndNotBanker = selfDraw && !currentIsBanker
-        return (baseTai.value + tai.value * numberOfTai + currentIsBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
+        return (baseTai + tai * numberOfTai + currentIsBanker.toInt() * tai * (2 * continueToBank + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai * (2 * continueToBank + 1)
     }
 
     fun updateScore(
@@ -182,16 +184,16 @@ class MajhongViewModel(
         val selfDraw = currentPlayerState == selectedPlayerState
         val selfDrawAndNotBanker = selfDraw && !isBanker
         val currentTotal =
-            (baseTai.value + tai.value * numberOfTai + isBanker.toInt() * tai.value * (2 * continueToBank.value + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai.value * (2 * continueToBank.value + 1)
+            (baseTai + tai * numberOfTai + isBanker.toInt() * tai * (2 * continueToBank + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai * (2 * continueToBank + 1)
         if (selfDrawAndNotBanker) {
             for (i in playerStates) {
                 if (currentPlayerState != i) {
                     if (i != getBanker()) {
-                        updatePlayerScore(i, -(baseTai.value + tai.value * numberOfTai))
+                        updatePlayerScore(i, -(baseTai + tai * numberOfTai))
                     } else {
                         updatePlayerScore(
                             i,
-                            -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+                            -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
                         )
                     }
                 }
@@ -201,17 +203,17 @@ class MajhongViewModel(
                 if (currentPlayerState != i) {
                     updatePlayerScore(
                         i,
-                        -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+                        -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
                     )
                 }
             }
         } else if (isBanker) {
             updatePlayerScore(
                 selectedPlayerState,
-                -(baseTai.value + tai.value * numberOfTai + tai.value * (2 * continueToBank.value + 1))
+                -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
             )
         } else {
-            updatePlayerScore(selectedPlayerState, -(baseTai.value + tai.value * numberOfTai))
+            updatePlayerScore(selectedPlayerState, -(baseTai + tai * numberOfTai))
         }
         updatePlayerScore(currentPlayerState, currentTotal)
         if (currentIsBanker) {

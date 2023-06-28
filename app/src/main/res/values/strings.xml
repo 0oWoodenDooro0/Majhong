@@ -7,4 +7,5 @@
     <string name="undo_content">Undo</string>
     <string name="swap_vert_content">SwapPlayer</string>
     <string name="casino_content">Dice</string>
+    <string name="dice_content">Dice</string>
 </resources>
