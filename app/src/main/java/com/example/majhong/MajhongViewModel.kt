@@ -43,8 +43,33 @@ class MajhongViewModel(
     var tai by mutableStateOf(10)
         private set
 
-    private fun onEvent(event: MajhongEvent) {
+    fun onEvent(event: MajhongEvent) {
         when (event) {
+            is MajhongEvent.InitMajhongAndPlayer ->{
+                viewModelScope.launch {
+                    for (i in 0 until 4) {
+                        val player = playerDao.getPlayerByDirection(i)
+                        if (player != null) {
+                            _playerStates[i].name = player.name
+                            _playerStates[i].score.value = player.score
+                        }
+                        else{
+                            _playerStates[i].name = ""
+                            _playerStates[i].score.value = 0
+                        }
+                    }
+                    val majhong = majhongDao.getMajhongById()
+                    if (majhong != null) {
+                        banker = majhong.banker
+                        continueToBank = majhong.continueToBank
+                        round = majhong.round
+                        wind = majhong.wind
+                        baseTai = majhong.baseTai
+                        tai = majhong.tai
+                    }
+                }
+            }
+
             is MajhongEvent.UpsertPlayer -> {
                 viewModelScope.launch {
                     viewModelScope.launch {
@@ -64,28 +89,19 @@ class MajhongViewModel(
                     majhongDao.upsertMajhong(event.majhong)
                 }
             }
+
+            is MajhongEvent.CreateNewMajhong -> {
+                viewModelScope.launch {
+                    playerDao.deleteAllPlayer()
+                    majhongDao.upsertMajhong(Majhong(0, 0, 0, 0, 30, 10))
+                    onEvent(MajhongEvent.InitMajhongAndPlayer)
+                }
+            }
         }
     }
 
     init {
-        viewModelScope.launch {
-            for (i in 0 until 4) {
-                val player = playerDao.getPlayerByDirection(i)
-                if (player != null) {
-                    _playerStates[i].name = player.name
-                    _playerStates[i].score.value = player.score
-                }
-            }
-            val majhong = majhongDao.getMajhongById()
-            if (majhong != null) {
-                banker = majhong.banker
-                continueToBank = majhong.continueToBank
-                round = majhong.round
-                wind = majhong.wind
-                baseTai = majhong.baseTai
-                tai = majhong.tai
-            }
-        }
+        onEvent(MajhongEvent.InitMajhongAndPlayer)
     }
 
     fun getBanker(): PlayerState {

@@ -22,13 +22,16 @@ import androidx.compose.ui.unit.sp
 import com.example.majhong.R
 
 @Composable
-fun MainToolBar() {
+fun MainToolBar(
+    createNewMajhong: () -> Unit
+) {
     var showDiceDialog by remember { mutableStateOf(false) }
+    var showNewDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .clickable { }
+                .clickable { showNewDialog = true }
                 .padding(10.dp),
             painterResourceId = R.drawable.baseline_add_24,
             stringResource = R.string.add_content,
@@ -64,14 +67,20 @@ fun MainToolBar() {
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .clickable { showDiceDialog = true}
+                .clickable { showDiceDialog = true }
                 .padding(10.dp),
             painterResourceId = R.drawable.outline_casino_24,
             stringResource = R.string.casino_content,
             actionDescription = "擲骰"
         )
     }
-    if (showDiceDialog){
+    if (showNewDialog) {
+        NewDialog(onDismiss = { showNewDialog = false }, onConfirm = {
+            createNewMajhong()
+            showNewDialog = false
+        })
+    }
+    if (showDiceDialog) {
         DiceDialog {
             showDiceDialog = false
         }

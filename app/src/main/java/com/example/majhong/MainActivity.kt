@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
+import com.example.majhong.database.MajhongEvent
 import com.example.majhong.ui.MainScreen
 import com.example.majhong.ui.MainToolBar
 import com.example.majhong.ui.theme.MajhongTheme
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
             MajhongTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column {
-                        MainToolBar()
+                        MainToolBar { majhongViewModel.onEvent(MajhongEvent.CreateNewMajhong) }
                         MainScreen(majhongViewModel)
                     }
                 }
