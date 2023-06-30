@@ -69,7 +69,7 @@ fun WinDialog(
                             modifier = Modifier.padding(bottom = 15.dp)
                         )
                         Button(onClick = {
-                            if (stateOfTai < 50) stateOfTai += 1
+                            if (stateOfTai < 50) stateOfTai++
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -82,7 +82,7 @@ fun WinDialog(
                             modifier = Modifier.padding(10.dp)
                         )
                         Button(onClick = {
-                            if (stateOfTai > 0) stateOfTai -= 1
+                            if (stateOfTai > 0) stateOfTai--
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
