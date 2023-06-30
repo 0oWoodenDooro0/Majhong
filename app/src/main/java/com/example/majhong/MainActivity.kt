@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -15,7 +14,6 @@ import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
 import com.example.majhong.ui.MainScreen
 import com.example.majhong.ui.MainToolBar
-import com.example.majhong.ui.theme.MainColor
 import com.example.majhong.ui.theme.MajhongTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,9 +42,7 @@ class MainActivity : ComponentActivity() {
 //            db.clearAllTables()
             MajhongTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    Column(
-                        modifier = Modifier.background(MainColor)
-                    ) {
+                    Column {
                         MainToolBar()
                         MainScreen(majhongViewModel)
                     }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,9 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.majhong.PlayerState
 import com.example.majhong.R
-import com.example.majhong.ui.theme.BankerColor
-import com.example.majhong.ui.theme.NegScoreColor
-import com.example.majhong.ui.theme.PosScoreColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,8 +48,6 @@ fun PlayerCard(
     val context = LocalContext.current
     var showWinDialog by remember { mutableStateOf(false) }
     var showAddNameDialog by remember { mutableStateOf(false) }
-    val scoreColor =
-        if (currentPlayerState.score.value == 0) Color.Black else if (currentPlayerState.score.value > 0) PosScoreColor else NegScoreColor
     if (showWinDialog) {
         WinDialog(onDismiss = {
             showWinDialog = false
@@ -84,7 +79,6 @@ fun PlayerCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(5.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(5.dp),
             onClick = {
                 if (currentPlayerState.name == "") {
@@ -106,13 +100,11 @@ fun PlayerCard(
                     AutoSizeText(
                         text = currentPlayerState.name,
                         maxTextSize = 20.sp,
-                        color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
                     AutoSizeText(
                         text = currentPlayerState.score.value.toString(),
                         maxTextSize = 32.sp,
-                        color = scoreColor,
                         textAlign = TextAlign.Center
                     )
                     if (currentPlayerState == bankerPlayerState() && continueToBank() == 0) {
@@ -120,11 +112,12 @@ fun PlayerCard(
                             text = "莊",
                             modifier = Modifier
                                 .background(
-                                    color = BankerColor, shape = RoundedCornerShape(5.dp)
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    shape = RoundedCornerShape(5.dp)
                                 )
                                 .padding(5.dp),
-                            color = Color.White,
                             fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onTertiary,
                             textAlign = TextAlign.Center,
                         )
                     } else if (currentPlayerState == bankerPlayerState()) {
@@ -132,10 +125,11 @@ fun PlayerCard(
                             text = "連${continueToBank()}",
                             modifier = Modifier
                                 .background(
-                                    color = BankerColor, shape = RoundedCornerShape(5.dp)
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    shape = RoundedCornerShape(5.dp)
                                 )
                                 .padding(5.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onTertiary,
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center,
                         )

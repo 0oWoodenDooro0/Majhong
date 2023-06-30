@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,10 +26,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.majhong.PlayerState
 import com.example.majhong.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WinDialog(
     onDismiss: () -> Unit,
@@ -44,7 +42,7 @@ fun WinDialog(
     calculateTotal: (PlayerState, Int) -> Int,
     buttonOnClick: (PlayerState, Int) -> Unit
 ) {
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss
     ) {
         Surface(

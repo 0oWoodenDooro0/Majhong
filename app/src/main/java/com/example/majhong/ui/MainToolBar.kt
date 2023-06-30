@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -19,6 +23,7 @@ import com.example.majhong.R
 
 @Composable
 fun MainToolBar() {
+    var showDiceDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
         ActionButton(
             modifier = Modifier
@@ -59,12 +64,17 @@ fun MainToolBar() {
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .clickable { }
+                .clickable { showDiceDialog = true}
                 .padding(10.dp),
             painterResourceId = R.drawable.outline_casino_24,
             stringResource = R.string.casino_content,
             actionDescription = "擲骰"
         )
+    }
+    if (showDiceDialog){
+        DiceDialog {
+            showDiceDialog = false
+        }
     }
 }
 
