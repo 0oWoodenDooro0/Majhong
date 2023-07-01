@@ -1,5 +1,7 @@
 package com.example.majhong.database
 
+import com.example.majhong.PlayerState
+
 sealed interface MajhongDatabaseEvent {
     object InitMajhongAndPlayerDatabase : MajhongDatabaseEvent
     data class UpsertPlayer(val player: Player) : MajhongDatabaseEvent
@@ -11,4 +13,7 @@ sealed interface MajhongDatabaseEvent {
         val drawToContinue: Boolean,
         val newToClearPlayer: Boolean
     ) : MajhongDatabaseEvent
+
+    object GetAllPlayer : MajhongDatabaseEvent
+    data class SwapPlayer(val player1: PlayerState, val player2: PlayerState) : MajhongDatabaseEvent
 }

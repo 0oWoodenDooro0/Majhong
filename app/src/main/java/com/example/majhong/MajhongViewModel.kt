@@ -16,13 +16,10 @@ import kotlinx.coroutines.launch
 fun Boolean.toInt() = if (this) 1 else 0
 
 class MajhongViewModel(
-    private val playerDao: PlayerDao,
-    private val majhongDao: MajhongDao
+    private val playerDao: PlayerDao, private val majhongDao: MajhongDao
 ) : ViewModel() {
 
-    private val _playerStates =
-        mutableListOf(PlayerState(""), PlayerState(""), PlayerState(""), PlayerState(""))
-    val playerStates: List<PlayerState> = _playerStates
+    var playerStates by mutableStateOf(listOf(PlayerState(), PlayerState(), PlayerState(), PlayerState()))
 
     val directions = listOf("東", "南", "西", "北")
 
@@ -56,11 +53,12 @@ class MajhongViewModel(
                     for (i in 0 until 4) {
                         val player = playerDao.getPlayerByDirection(i)
                         if (player != null) {
-                            _playerStates[i].name = player.name
-                            _playerStates[i].score.value = player.score
+                            playerStates[i].name = player.name
+                            playerStates[i].score.value = player.score
+                            playerStates[i].id = player.id
                         } else {
-                            _playerStates[i].name = ""
-                            _playerStates[i].score.value = 0
+                            playerStates[i].name = ""
+                            playerStates[i].score.value = 0
                         }
                     }
                     val majhong = majhongDao.getMajhongById()
@@ -73,6 +71,19 @@ class MajhongViewModel(
                         tai = majhong.tai
                         drawToContinue = majhong.drawToContinue
                         newToClearPlayer = majhong.newToClearPlayer
+                    } else {
+                        majhongDao.upsertMajhong(
+                            Majhong(
+                                banker = 0,
+                                continueToBank = 0,
+                                round = 0,
+                                wind = 0,
+                                baseTai = 30,
+                                tai = 10,
+                                drawToContinue = true,
+                                newToClearPlayer = false
+                            )
+                        )
                     }
                 }
             }
@@ -87,7 +98,7 @@ class MajhongViewModel(
 
             is MajhongDatabaseEvent.UpdatePlayerScore -> {
                 viewModelScope.launch {
-                    playerDao.updatePlayerScore(event.score, event.direction)
+                    playerDao.updatePlayerScoreByDirection(event.score, event.direction)
                 }
             }
 
@@ -116,6 +127,38 @@ class MajhongViewModel(
                     onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
                 }
             }
+
+            is MajhongDatabaseEvent.GetAllPlayer -> {
+                viewModelScope.launch {
+                    val players = playerDao.getAllPlayer()
+                    val playerStateList =
+                        mutableListOf(PlayerState(), PlayerState(), PlayerState(), PlayerState())
+                    for (i in players) {
+                        if (i.direction != -1) {
+                            playerStateList[i.direction] =
+                                PlayerState(i.name, mutableStateOf(i.score), i.id)
+                        } else {
+                            playerStateList.add(PlayerState(i.name, mutableStateOf(i.score), i.id))
+                        }
+                    }
+                    playerStates = playerStateList.toList()
+                }
+            }
+
+            is MajhongDatabaseEvent.SwapPlayer -> {
+                viewModelScope.launch {
+                    val player1Index = playerStates.indexOf(event.player1)
+                    val player2Index = playerStates.indexOf(event.player2)
+                    playerDao.updatePlayerDirectionById(
+                        if (player2Index > 3) -1 else player2Index, event.player1.id
+                    )
+                    playerDao.updatePlayerDirectionById(
+                        if (player1Index > 3) -1 else player1Index, event.player2.id
+                    )
+                    onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
+                    onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
+                }
+            }
         }
     }
 
@@ -124,7 +167,7 @@ class MajhongViewModel(
     }
 
     private fun getBanker(): PlayerState {
-        return _playerStates[banker]
+        return playerStates[banker]
     }
 
     fun currentPlayerIsBanker(current: PlayerState): Boolean {
@@ -136,24 +179,23 @@ class MajhongViewModel(
     }
 
     fun updatePlayerName(playerState: PlayerState, name: String) {
-        val index = _playerStates.indexOf(playerState)
-        _playerStates[index].name = name
-        onDatabaseEvent(MajhongDatabaseEvent.UpsertPlayer(Player(name, 0, index)))
+        val index = playerStates.indexOf(playerState)
+        playerStates[index].name = name
+        onDatabaseEvent(MajhongDatabaseEvent.UpsertPlayer(Player(name = name, direction = index)))
     }
 
     private fun updatePlayerScore(playerState: PlayerState, score: Int) {
-        val index = _playerStates.indexOf(playerState)
-        _playerStates[index].score.value += score
+        val index = playerStates.indexOf(playerState)
+        playerStates[index].score.value += score
         onDatabaseEvent(
             MajhongDatabaseEvent.UpdatePlayerScore(
-                _playerStates[index].score.value,
-                index
+                playerStates[index].score.value, index
             )
         )
     }
 
     fun isAllPlayerNamed(): Boolean {
-        for (i in 0 until _playerStates.size - 1) {
+        for (i in 0 until playerStates.size - 1) {
             if (playerStates[i].name == "") return false
         }
         return true
@@ -215,9 +257,7 @@ class MajhongViewModel(
     }
 
     fun calculateTotal(
-        currentPlayerState: PlayerState,
-        selectedPlayerState: PlayerState,
-        numberOfTai: Int
+        currentPlayerState: PlayerState, selectedPlayerState: PlayerState, numberOfTai: Int
     ): Int {
         val currentIsBanker =
             currentPlayerIsBanker(currentPlayerState) || selectedPlayerIsBanker(selectedPlayerState)
@@ -227,9 +267,7 @@ class MajhongViewModel(
     }
 
     fun updateScore(
-        currentPlayerState: PlayerState,
-        selectedPlayerState: PlayerState,
-        numberOfTai: Int
+        currentPlayerState: PlayerState, selectedPlayerState: PlayerState, numberOfTai: Int
     ) {
         val isBanker =
             selectedPlayerIsBanker(selectedPlayerState) || currentPlayerIsBanker(currentPlayerState)
@@ -244,8 +282,7 @@ class MajhongViewModel(
                         updatePlayerScore(i, -(baseTai + tai * numberOfTai))
                     } else {
                         updatePlayerScore(
-                            i,
-                            -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
+                            i, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
                         )
                     }
                 }
@@ -254,15 +291,13 @@ class MajhongViewModel(
             for (i in playerStates) {
                 if (currentPlayerState != i) {
                     updatePlayerScore(
-                        i,
-                        -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
+                        i, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
                     )
                 }
             }
         } else if (isBanker) {
             updatePlayerScore(
-                selectedPlayerState,
-                -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
+                selectedPlayerState, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
             )
         } else {
             updatePlayerScore(selectedPlayerState, -(baseTai + tai * numberOfTai))
@@ -276,4 +311,6 @@ class MajhongViewModel(
     }
 }
 
-data class PlayerState(var name: String = "", var score: MutableState<Int> = mutableStateOf(0))
+data class PlayerState(
+    var name: String = "", var score: MutableState<Int> = mutableStateOf(0), var id: Int = 0
+)

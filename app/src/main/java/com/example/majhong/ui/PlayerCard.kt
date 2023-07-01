@@ -46,7 +46,7 @@ fun PlayerCard(
     requiredAllPlayerName: () -> Unit
 ) {
     var showWinDialog by remember { mutableStateOf(false) }
-    var showAddNameDialog by remember { mutableStateOf(false) }
+    var showAddPlayerDialog by remember { mutableStateOf(false) }
     if (showWinDialog) {
         WinDialog(onDismiss = {
             showWinDialog = false
@@ -66,12 +66,12 @@ fun PlayerCard(
                 showWinDialog = false
             })
     }
-    if (showAddNameDialog) {
-        AddNameDialog(onDismiss = {
-            showAddNameDialog = false
+    if (showAddPlayerDialog) {
+        AddPlayerDialog(onDismiss = {
+            showAddPlayerDialog = false
         }, buttonOnClick = { playerName ->
             updateName(currentPlayerState, playerName)
-            showAddNameDialog = false
+            showAddPlayerDialog = false
         })
     }
     Column(modifier = modifier) {
@@ -82,7 +82,7 @@ fun PlayerCard(
             elevation = CardDefaults.cardElevation(5.dp),
             onClick = {
                 if (currentPlayerState.name == "") {
-                    showAddNameDialog = true
+                    showAddPlayerDialog = true
                 } else if (!isAllPlayerNamed()) {
                     requiredAllPlayerName()
                 } else {
@@ -112,12 +112,12 @@ fun PlayerCard(
                             text = "莊",
                             modifier = Modifier
                                 .background(
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = MaterialTheme.colorScheme.secondary,
                                     shape = RoundedCornerShape(5.dp)
                                 )
                                 .padding(5.dp),
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onTertiary,
+                            color = MaterialTheme.colorScheme.onSecondary,
                             textAlign = TextAlign.Center,
                         )
                     } else if (currentPlayerIsBanker(currentPlayerState)) {

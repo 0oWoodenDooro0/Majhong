@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,12 +67,15 @@ fun DiceDialog(
                         )
                     }
                 }
-                Button(onClick = {
-                    dice1 = getRandomDice()
-                    dice2 = getRandomDice()
-                    dice3 = getRandomDice()
-                    diceResult = dice1 + dice2 + dice3 + 3
-                }) {
+                TextButton(
+                    onClick = {
+                        dice1 = getRandomDice()
+                        dice2 = getRandomDice()
+                        dice3 = getRandomDice()
+                        diceResult = dice1 + dice2 + dice3 + 3
+                    },
+                    modifier = Modifier.padding(10.dp)
+                ) {
                     Text(text = "擲骰")
                 }
             }

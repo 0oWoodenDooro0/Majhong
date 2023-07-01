@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
 import com.example.majhong.database.MajhongDatabaseEvent
+import com.example.majhong.database.Player
 import com.example.majhong.ui.MainScreen
 import com.example.majhong.ui.MainToolBar
 import com.example.majhong.ui.theme.MajhongTheme
@@ -73,6 +74,22 @@ class MainActivity : ComponentActivity() {
                                         newToClearPlayer
                                     )
                                 )
+                            },
+                            AddPlayer = { name ->
+                                majhongViewModel.onDatabaseEvent(
+                                    MajhongDatabaseEvent.UpsertPlayer(
+                                        Player(name)
+                                    )
+                                )
+                            },
+                            players = majhongViewModel.playerStates,
+                            swapPlayer = { player1, player2 ->
+                                majhongViewModel.onDatabaseEvent(
+                                    MajhongDatabaseEvent.SwapPlayer(
+                                        player1,
+                                        player2
+                                    )
+                                )
                             }
                         )
                     }
@@ -118,9 +135,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-//                Surface(modifier = Modifier.fillMaxSize()) {
-//
-//                }
             }
         }
     }

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
+fun AddPlayerDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
     Dialog(
         onDismissRequest = onDismiss
     ) {

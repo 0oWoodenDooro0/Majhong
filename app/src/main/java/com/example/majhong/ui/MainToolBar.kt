@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.majhong.PlayerState
 import com.example.majhong.R
 
 @Composable
@@ -27,11 +28,16 @@ fun MainToolBar(
     tai: () -> Int,
     drawToContinue: () -> Boolean,
     newToClearPlayer: () -> Boolean,
-    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit
+    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
+    AddPlayer: (String) -> Unit,
+    players: List<PlayerState>,
+    swapPlayer: (PlayerState, PlayerState) -> Unit
 ) {
-    var showDiceDialog by remember { mutableStateOf(false) }
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
+    var showAddPlayerDialog by remember { mutableStateOf(false) }
+    var showTranspositionDialog by remember { mutableStateOf(false) }
+    var showDiceDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
         ActionButton(
             modifier = Modifier
@@ -54,7 +60,7 @@ fun MainToolBar(
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .clickable { }
+                .clickable { showAddPlayerDialog = true }
                 .padding(10.dp),
             painterResourceId = R.drawable.baseline_person_add_alt_1_24,
             stringResource = R.string.person_add_content,
@@ -63,10 +69,10 @@ fun MainToolBar(
         ActionButton(
             modifier = Modifier
                 .weight(1f)
-                .clickable { }
+                .clickable { showTranspositionDialog = true }
                 .padding(10.dp),
             painterResourceId = R.drawable.baseline_swap_vert_24,
-            stringResource = R.string.swap_vert_content,
+            stringResource = R.string.swap_content,
             actionDescription = "換人/換位"
         )
         ActionButton(
@@ -84,8 +90,7 @@ fun MainToolBar(
             showNewDialog = false
             showModifyRulesDialog = true
         })
-    }
-    if (showModifyRulesDialog) {
+    } else if (showModifyRulesDialog) {
         ModifyRulesDialog(
             baseTai = baseTai,
             tai = tai,
@@ -96,8 +101,21 @@ fun MainToolBar(
                 onModifyRules(baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer)
                 showModifyRulesDialog = false
             })
-    }
-    if (showDiceDialog) {
+    } else if (showAddPlayerDialog) {
+        AddPlayerDialog(onDismiss = { showAddPlayerDialog = false }, buttonOnClick = { name ->
+            AddPlayer(name)
+            showAddPlayerDialog = false
+        })
+    } else if (showTranspositionDialog) {
+        TranspositionDialog(
+            onDismiss = { showTranspositionDialog = false },
+            players = players,
+            swapPlayers = { player1, player2 ->
+                swapPlayer(player1, player2)
+                showTranspositionDialog = false
+            }
+        )
+    } else if (showDiceDialog) {
         DiceDialog {
             showDiceDialog = false
         }
