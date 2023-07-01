@@ -25,7 +25,9 @@ import com.example.majhong.R
 fun MainToolBar(
     baseTai: () -> Int,
     tai: () -> Int,
-    onModifyRules: (Int, Int, Boolean) -> Unit
+    drawToContinue: () -> Boolean,
+    newToClearPlayer: () -> Boolean,
+    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit
 ) {
     var showDiceDialog by remember { mutableStateOf(false) }
     var showNewDialog by remember { mutableStateOf(false) }
@@ -87,9 +89,11 @@ fun MainToolBar(
         ModifyRulesDialog(
             baseTai = baseTai,
             tai = tai,
+            drawToContinue = drawToContinue,
+            newToClearPlayer = newToClearPlayer,
             onDismiss = { showModifyRulesDialog = false },
-            onModifyRules = { baseTaiValue, taiValue, drawToContinue ->
-                onModifyRules(baseTaiValue, taiValue, drawToContinue)
+            onModifyRules = { baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer ->
+                onModifyRules(baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer)
                 showModifyRulesDialog = false
             })
     }

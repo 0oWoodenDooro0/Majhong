@@ -34,7 +34,8 @@ fun MainScreen(
     calculateTotal: (PlayerState, PlayerState, Int) -> Int,
     updateName: (PlayerState, String) -> Unit,
     updateScore: (PlayerState, PlayerState, Int) -> Unit,
-    draw: () -> Unit
+    draw: () -> Unit,
+    requiredAllPlayerName: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -68,7 +69,8 @@ fun MainScreen(
                 isAllPlayerNamed,
                 calculateTotal,
                 updateName,
-                updateScore
+                updateScore,
+                requiredAllPlayerName
             )
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -89,7 +91,8 @@ fun MainScreen(
                 isAllPlayerNamed,
                 calculateTotal,
                 updateName,
-                updateScore
+                updateScore,
+                requiredAllPlayerName
             )
             Column(
                 modifier = Modifier
@@ -114,7 +117,8 @@ fun MainScreen(
                 isAllPlayerNamed,
                 calculateTotal,
                 updateName,
-                updateScore
+                updateScore,
+                requiredAllPlayerName
             )
         }
         Row(
@@ -135,7 +139,8 @@ fun MainScreen(
                 isAllPlayerNamed,
                 calculateTotal,
                 updateName,
-                updateScore
+                updateScore,
+                requiredAllPlayerName
             )
             Spacer(modifier = Modifier.weight(1f))
         }

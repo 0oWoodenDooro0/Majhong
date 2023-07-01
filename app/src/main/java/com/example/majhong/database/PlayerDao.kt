@@ -16,6 +16,9 @@ interface PlayerDao {
     @Query("DELETE FROM player")
     fun deleteAllPlayer()
 
+    @Query("UPDATE player SET score=0")
+    fun setAllPlayerScoreToZero()
+
     @Query("SELECT * FROM player WHERE direction=:direction")
     fun getPlayerByDirection(direction: Int): Player?
 }

@@ -1,6 +1,5 @@
 package com.example.majhong.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,9 +42,9 @@ fun PlayerCard(
     isAllPlayerNamed: () -> Boolean,
     calculateTotal: (PlayerState, PlayerState, Int) -> Int,
     updateName: (PlayerState, String) -> Unit,
-    updateScore: (PlayerState, PlayerState, Int) -> Unit
+    updateScore: (PlayerState, PlayerState, Int) -> Unit,
+    requiredAllPlayerName: () -> Unit
 ) {
-    val context = LocalContext.current
     var showWinDialog by remember { mutableStateOf(false) }
     var showAddNameDialog by remember { mutableStateOf(false) }
     if (showWinDialog) {
@@ -86,7 +84,7 @@ fun PlayerCard(
                 if (currentPlayerState.name == "") {
                     showAddNameDialog = true
                 } else if (!isAllPlayerNamed()) {
-                    Toast.makeText(context, "請先加入所有玩家", Toast.LENGTH_LONG).show()
+                    requiredAllPlayerName()
                 } else {
                     showWinDialog = true
                 }

@@ -36,14 +36,17 @@ import com.example.majhong.R
 fun ModifyRulesDialog(
     baseTai: () -> Int,
     tai: () -> Int,
+    drawToContinue: () -> Boolean,
+    newToClearPlayer: () -> Boolean,
     onDismiss: () -> Unit,
-    onModifyRules: (Int, Int, Boolean) -> Unit
+    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit
 ) {
     var baseTaiText by remember { mutableStateOf(baseTai().toString()) }
     var baseTaiError by remember { mutableStateOf(false) }
     var taiText by remember { mutableStateOf(tai().toString()) }
     var taiError by remember { mutableStateOf(false) }
-    var switchOfDraw by remember { mutableStateOf(true) }
+    var switchOfDraw by remember { mutableStateOf(drawToContinue()) }
+    var switchOfClearPlayer by remember { mutableStateOf(newToClearPlayer()) }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(15.dp),
@@ -54,7 +57,7 @@ fun ModifyRulesDialog(
                 Text(text = "規則細項", modifier = Modifier.padding(10.dp), fontSize = 24.sp)
                 Row(
                     modifier = Modifier
-                        .padding(20.dp)
+                        .padding(5.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -91,7 +94,7 @@ fun ModifyRulesDialog(
                 }
                 Row(
                     modifier = Modifier
-                        .padding(20.dp)
+                        .padding(5.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -134,7 +137,7 @@ fun ModifyRulesDialog(
                 )
                 Row(
                     modifier = Modifier
-                        .padding(20.dp)
+                        .padding(5.dp)
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -144,12 +147,25 @@ fun ModifyRulesDialog(
                         switchOfDraw = it
                     })
                 }
+                Row(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "是否清除玩家", fontSize = 20.sp)
+                    Switch(checked = switchOfClearPlayer, onCheckedChange = {
+                        switchOfClearPlayer = it
+                    })
+                }
                 TextButton(onClick = {
                     if (baseTaiText.isDigitsOnly())
                         if (baseTaiText.isDigitsOnly() && taiText.isDigitsOnly()) onModifyRules(
                             baseTaiText.toInt(),
                             taiText.toInt(),
-                            switchOfDraw
+                            switchOfDraw,
+                            switchOfClearPlayer
                         )
                 }, modifier = Modifier.padding(10.dp)) {
                     Text(text = "確定")

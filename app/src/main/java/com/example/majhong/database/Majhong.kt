@@ -11,6 +11,8 @@ data class Majhong(
     val wind: Int,
     val baseTai: Int,
     val tai: Int,
+    val drawToContinue: Boolean,
+    val newToClearPlayer: Boolean,
     @PrimaryKey
     val id: Int = 0
 )

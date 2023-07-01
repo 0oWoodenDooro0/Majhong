@@ -43,6 +43,12 @@ class MajhongViewModel(
     var tai by mutableStateOf(10)
         private set
 
+    var drawToContinue by mutableStateOf(true)
+        private set
+
+    var newToClearPlayer by mutableStateOf(false)
+        private set
+
     fun onDatabaseEvent(event: MajhongDatabaseEvent) {
         when (event) {
             is MajhongDatabaseEvent.InitMajhongAndPlayerDatabase -> {
@@ -65,6 +71,8 @@ class MajhongViewModel(
                         wind = majhong.wind
                         baseTai = majhong.baseTai
                         tai = majhong.tai
+                        drawToContinue = majhong.drawToContinue
+                        newToClearPlayer = majhong.newToClearPlayer
                     }
                 }
             }
@@ -91,8 +99,20 @@ class MajhongViewModel(
 
             is MajhongDatabaseEvent.UpsertNewMajhongDatabase -> {
                 viewModelScope.launch {
-                    playerDao.deleteAllPlayer()
-                    majhongDao.upsertMajhong(Majhong(0, 0, 0, 0, event.baseTai, event.tai))
+                    majhongDao.upsertMajhong(
+                        Majhong(
+                            0,
+                            0,
+                            0,
+                            0,
+                            event.baseTai,
+                            event.tai,
+                            event.drawToContinue,
+                            event.newToClearPlayer
+                        )
+                    )
+                    if (event.newToClearPlayer) playerDao.deleteAllPlayer()
+                    else playerDao.setAllPlayerScoreToZero()
                     onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
                 }
             }
@@ -140,7 +160,8 @@ class MajhongViewModel(
     }
 
     fun draw() {
-        updateContinueToBank()
+        if (drawToContinue) updateContinueToBank()
+        else updateNextBanker()
     }
 
     private fun updateNextBanker() {
@@ -160,7 +181,9 @@ class MajhongViewModel(
                     round,
                     wind,
                     baseTai,
-                    tai
+                    tai,
+                    drawToContinue,
+                    newToClearPlayer
                 )
             )
         )
@@ -179,7 +202,9 @@ class MajhongViewModel(
                     round,
                     wind,
                     baseTai,
-                    tai
+                    tai,
+                    drawToContinue,
+                    newToClearPlayer
                 )
             )
         )
@@ -206,7 +231,8 @@ class MajhongViewModel(
         selectedPlayerState: PlayerState,
         numberOfTai: Int
     ) {
-        val isBanker = selectedPlayerIsBanker(selectedPlayerState) || currentPlayerIsBanker(currentPlayerState)
+        val isBanker =
+            selectedPlayerIsBanker(selectedPlayerState) || currentPlayerIsBanker(currentPlayerState)
         val selfDraw = currentPlayerState == selectedPlayerState
         val selfDrawAndNotBanker = selfDraw && !isBanker
         val currentTotal =

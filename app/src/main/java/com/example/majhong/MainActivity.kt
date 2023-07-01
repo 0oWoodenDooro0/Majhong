@@ -6,7 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +24,7 @@ import com.example.majhong.database.MajhongDatabaseEvent
 import com.example.majhong.ui.MainScreen
 import com.example.majhong.ui.MainToolBar
 import com.example.majhong.ui.theme.MajhongTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -24,7 +33,7 @@ class MainActivity : ComponentActivity() {
             applicationContext, MajhongDatabase::class.java, "player.db"
         )
             .allowMainThreadQueries()
-//            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration()
             .build()
     }
 
@@ -40,23 +49,35 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val snackBarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
 //            db.clearAllTables()
             MajhongTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    Column {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = {
+                        SnackbarHost(snackBarHostState) { Snackbar { Text(text = "請先加入所有玩家") } }
+                    },
+                    topBar = {
                         MainToolBar(
                             baseTai = { majhongViewModel.baseTai },
                             tai = { majhongViewModel.tai },
-                            onModifyRules = { baseTai, tai, drawToContinue ->
+                            drawToContinue = { majhongViewModel.drawToContinue },
+                            newToClearPlayer = { majhongViewModel.newToClearPlayer },
+                            onModifyRules = { baseTai, tai, drawToContinue, newToClearPlayer ->
                                 majhongViewModel.onDatabaseEvent(
                                     MajhongDatabaseEvent.UpsertNewMajhongDatabase(
                                         baseTai,
                                         tai,
-                                        drawToContinue
+                                        drawToContinue,
+                                        newToClearPlayer
                                     )
                                 )
                             }
                         )
+                    }
+                ) { padding ->
+                    Column(modifier = Modifier.padding(padding)) {
                         MainScreen(
                             round = majhongViewModel.directions[majhongViewModel.round],
                             wind = majhongViewModel.directions[majhongViewModel.wind],
@@ -85,10 +106,21 @@ class MainActivity : ComponentActivity() {
                             { current, selected, numberOfTai ->
                                 majhongViewModel.updateScore(current, selected, numberOfTai)
                             },
-                            draw = { majhongViewModel.draw() }
+                            draw = { majhongViewModel.draw() },
+                            requiredAllPlayerName = {
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = "請先加入所有玩家",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
                         )
                     }
                 }
+//                Surface(modifier = Modifier.fillMaxSize()) {
+//
+//                }
             }
         }
     }
