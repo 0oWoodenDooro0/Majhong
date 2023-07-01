@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.majhong.database.Majhong
 import com.example.majhong.database.MajhongDao
-import com.example.majhong.database.MajhongEvent
+import com.example.majhong.database.MajhongDatabaseEvent
 import com.example.majhong.database.Player
 import com.example.majhong.database.PlayerDao
 import kotlinx.coroutines.launch
@@ -43,9 +43,9 @@ class MajhongViewModel(
     var tai by mutableStateOf(10)
         private set
 
-    fun onEvent(event: MajhongEvent) {
+    fun onDatabaseEvent(event: MajhongDatabaseEvent) {
         when (event) {
-            is MajhongEvent.InitMajhongAndPlayer -> {
+            is MajhongDatabaseEvent.InitMajhongAndPlayerDatabase -> {
                 viewModelScope.launch {
                     for (i in 0 until 4) {
                         val player = playerDao.getPlayerByDirection(i)
@@ -69,7 +69,7 @@ class MajhongViewModel(
                 }
             }
 
-            is MajhongEvent.UpsertPlayer -> {
+            is MajhongDatabaseEvent.UpsertPlayer -> {
                 viewModelScope.launch {
                     viewModelScope.launch {
                         playerDao.upsertPlayer(event.player)
@@ -77,46 +77,59 @@ class MajhongViewModel(
                 }
             }
 
-            is MajhongEvent.UpdatePlayerScore -> {
+            is MajhongDatabaseEvent.UpdatePlayerScore -> {
                 viewModelScope.launch {
                     playerDao.updatePlayerScore(event.score, event.direction)
                 }
             }
 
-            is MajhongEvent.UpsertMajhong -> {
+            is MajhongDatabaseEvent.UpsertMajhongDatabase -> {
                 viewModelScope.launch {
                     majhongDao.upsertMajhong(event.majhong)
                 }
             }
 
-            is MajhongEvent.CreateNewMajhong -> {
+            is MajhongDatabaseEvent.UpsertNewMajhongDatabase -> {
                 viewModelScope.launch {
                     playerDao.deleteAllPlayer()
                     majhongDao.upsertMajhong(Majhong(0, 0, 0, 0, event.baseTai, event.tai))
-                    onEvent(MajhongEvent.InitMajhongAndPlayer)
+                    onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
                 }
             }
         }
     }
 
     init {
-        onEvent(MajhongEvent.InitMajhongAndPlayer)
+        onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
     }
 
-    fun getBanker(): PlayerState {
+    private fun getBanker(): PlayerState {
         return _playerStates[banker]
+    }
+
+    fun currentPlayerIsBanker(current: PlayerState): Boolean {
+        return current == getBanker()
+    }
+
+    fun selectedPlayerIsBanker(selected: PlayerState): Boolean {
+        return selected == getBanker()
     }
 
     fun updatePlayerName(playerState: PlayerState, name: String) {
         val index = _playerStates.indexOf(playerState)
         _playerStates[index].name = name
-        onEvent(MajhongEvent.UpsertPlayer(Player(name, 0, index)))
+        onDatabaseEvent(MajhongDatabaseEvent.UpsertPlayer(Player(name, 0, index)))
     }
 
     private fun updatePlayerScore(playerState: PlayerState, score: Int) {
         val index = _playerStates.indexOf(playerState)
         _playerStates[index].score.value += score
-        onEvent(MajhongEvent.UpdatePlayerScore(_playerStates[index].score.value, index))
+        onDatabaseEvent(
+            MajhongDatabaseEvent.UpdatePlayerScore(
+                _playerStates[index].score.value,
+                index
+            )
+        )
     }
 
     fun isAllPlayerNamed(): Boolean {
@@ -139,8 +152,8 @@ class MajhongViewModel(
 
     private fun updateContinueToBank() {
         continueToBank += 1
-        onEvent(
-            MajhongEvent.UpsertMajhong(
+        onDatabaseEvent(
+            MajhongDatabaseEvent.UpsertMajhongDatabase(
                 Majhong(
                     banker,
                     continueToBank,
@@ -158,8 +171,8 @@ class MajhongViewModel(
         if (wind == 0) {
             updateRound()
         }
-        onEvent(
-            MajhongEvent.UpsertMajhong(
+        onDatabaseEvent(
+            MajhongDatabaseEvent.UpsertMajhongDatabase(
                 Majhong(
                     banker,
                     continueToBank,
@@ -182,7 +195,7 @@ class MajhongViewModel(
         numberOfTai: Int
     ): Int {
         val currentIsBanker =
-            currentPlayerState == getBanker() || selectedPlayerState == getBanker()
+            currentPlayerIsBanker(currentPlayerState) || selectedPlayerIsBanker(selectedPlayerState)
         val selfDraw = currentPlayerState == selectedPlayerState
         val selfDrawAndNotBanker = selfDraw && !currentIsBanker
         return (baseTai + tai * numberOfTai + currentIsBanker.toInt() * tai * (2 * continueToBank + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai * (2 * continueToBank + 1)
@@ -193,9 +206,7 @@ class MajhongViewModel(
         selectedPlayerState: PlayerState,
         numberOfTai: Int
     ) {
-        val selectedIsBanker = selectedPlayerState == getBanker()
-        val currentIsBanker = currentPlayerState == getBanker()
-        val isBanker = currentIsBanker || selectedIsBanker
+        val isBanker = selectedPlayerIsBanker(selectedPlayerState) || currentPlayerIsBanker(currentPlayerState)
         val selfDraw = currentPlayerState == selectedPlayerState
         val selfDrawAndNotBanker = selfDraw && !isBanker
         val currentTotal =
@@ -231,7 +242,7 @@ class MajhongViewModel(
             updatePlayerScore(selectedPlayerState, -(baseTai + tai * numberOfTai))
         }
         updatePlayerScore(currentPlayerState, currentTotal)
-        if (currentIsBanker) {
+        if (selectedPlayerIsBanker(selectedPlayerState)) {
             updateContinueToBank()
         } else {
             updateNextBanker()

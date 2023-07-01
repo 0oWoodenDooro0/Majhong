@@ -23,6 +23,8 @@ import com.example.majhong.R
 
 @Composable
 fun MainToolBar(
+    baseTai: () -> Int,
+    tai: () -> Int,
     onModifyRules: (Int, Int, Boolean) -> Unit
 ) {
     var showDiceDialog by remember { mutableStateOf(false) }
@@ -83,9 +85,11 @@ fun MainToolBar(
     }
     if (showModifyRulesDialog) {
         ModifyRulesDialog(
+            baseTai = baseTai,
+            tai = tai,
             onDismiss = { showModifyRulesDialog = false },
-            onModifyRules = { baseTai, tai, drawToContinue ->
-                onModifyRules(baseTai, tai, drawToContinue)
+            onModifyRules = { baseTaiValue, taiValue, drawToContinue ->
+                onModifyRules(baseTaiValue, taiValue, drawToContinue)
                 showModifyRulesDialog = false
             })
     }

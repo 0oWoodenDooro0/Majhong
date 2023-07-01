@@ -17,40 +17,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.majhong.MajhongViewModel
 import com.example.majhong.PlayerState
 
 @Composable
-fun MainScreen(viewModel: MajhongViewModel) {
+fun MainScreen(
+    round: String,
+    wind: String,
+    players: List<PlayerState>,
+    currentPlayerIsBanker: (PlayerState) -> Boolean,
+    selectedPlayerIsBanker: (PlayerState) -> Boolean,
+    continueToBank: () -> Int,
+    selectedPlayerState: (Int) -> PlayerState,
+    baseTai: () -> Int,
+    tai: () -> Int,
+    isAllPlayerNamed: () -> Boolean,
+    calculateTotal: (PlayerState, PlayerState, Int) -> Int,
+    updateName: (PlayerState, String) -> Unit,
+    updateScore: (PlayerState, PlayerState, Int) -> Unit,
+    draw: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val players = viewModel.playerStates
-        val bankerPlayer = { viewModel.getBanker() }
-        val continueToBank = { viewModel.continueToBank }
-        val selectedPlayerState: (Int) -> PlayerState = { index ->
-            viewModel.playerStates[index]
-        }
-        val baseTai = { viewModel.baseTai }
-        val tai = { viewModel.tai }
-        val isAllPlayerNamed = { viewModel.isAllPlayerNamed() }
-        val calculateTotal: (PlayerState, PlayerState, Int) -> Int =
-            { current, selected, numberOfTai ->
-                viewModel.calculateTotal(current, selected, numberOfTai)
-            }
-        val updateName: (PlayerState, String) -> Unit = { current, playerName ->
-            viewModel.updatePlayerName(current, playerName)
-        }
-        val updateScore: (PlayerState, PlayerState, Int) -> Unit =
-            { current, selected, numberOfTai ->
-                viewModel.updateScore(current, selected, numberOfTai)
-            }
         Row(modifier = Modifier.padding(15.dp)) {
             ElevatedButton(onClick = { }) {
                 Text(
-                    text = "${viewModel.directions[viewModel.round]}圈${viewModel.directions[viewModel.wind]}風",
+                    text = "${round}圈${wind}風",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                 )
@@ -65,7 +59,8 @@ fun MainScreen(viewModel: MajhongViewModel) {
             PlayerCard(
                 Modifier.weight(1f),
                 players[2],
-                bankerPlayer,
+                currentPlayerIsBanker,
+                selectedPlayerIsBanker,
                 continueToBank,
                 selectedPlayerState,
                 baseTai,
@@ -85,7 +80,8 @@ fun MainScreen(viewModel: MajhongViewModel) {
             PlayerCard(
                 Modifier.weight(1f),
                 players[3],
-                bankerPlayer,
+                currentPlayerIsBanker,
+                selectedPlayerIsBanker,
                 continueToBank,
                 selectedPlayerState,
                 baseTai,
@@ -102,14 +98,15 @@ fun MainScreen(viewModel: MajhongViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Button(onClick = { viewModel.draw() }) {
+                Button(onClick = draw) {
                     Text(text = "流局")
                 }
             }
             PlayerCard(
                 Modifier.weight(1f),
                 players[1],
-                bankerPlayer,
+                currentPlayerIsBanker,
+                selectedPlayerIsBanker,
                 continueToBank,
                 selectedPlayerState,
                 baseTai,
@@ -129,7 +126,8 @@ fun MainScreen(viewModel: MajhongViewModel) {
             PlayerCard(
                 Modifier.weight(1f),
                 players[0],
-                bankerPlayer,
+                currentPlayerIsBanker,
+                selectedPlayerIsBanker,
                 continueToBank,
                 selectedPlayerState,
                 baseTai,

@@ -35,7 +35,8 @@ import com.example.majhong.R
 fun PlayerCard(
     modifier: Modifier,
     currentPlayerState: PlayerState,
-    bankerPlayerState: () -> PlayerState,
+    currentPlayerIsBanker: (PlayerState) -> Boolean,
+    selectedPlayerIsBanker: (PlayerState) -> Boolean,
     continueToBank: () -> Int,
     selectedPlayerState: (Int) -> PlayerState,
     baseTai: () -> Int,
@@ -52,7 +53,8 @@ fun PlayerCard(
         WinDialog(onDismiss = {
             showWinDialog = false
         },
-            bankerPlayerState = bankerPlayerState,
+            currentPlayerIsBanker = currentPlayerIsBanker,
+            selectedPlayerIsBanker = selectedPlayerIsBanker,
             continueToBank = continueToBank,
             currentPlayerState = currentPlayerState,
             selectedPlayerState = selectedPlayerState,
@@ -107,7 +109,7 @@ fun PlayerCard(
                         maxTextSize = 32.sp,
                         textAlign = TextAlign.Center
                     )
-                    if (currentPlayerState == bankerPlayerState() && continueToBank() == 0) {
+                    if (currentPlayerIsBanker(currentPlayerState) && continueToBank() == 0) {
                         Text(
                             text = "莊",
                             modifier = Modifier
@@ -120,7 +122,7 @@ fun PlayerCard(
                             color = MaterialTheme.colorScheme.onTertiary,
                             textAlign = TextAlign.Center,
                         )
-                    } else if (currentPlayerState == bankerPlayerState()) {
+                    } else if (currentPlayerIsBanker(currentPlayerState)) {
                         Text(
                             text = "連${continueToBank()}",
                             modifier = Modifier

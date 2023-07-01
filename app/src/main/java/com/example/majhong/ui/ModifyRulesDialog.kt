@@ -34,12 +34,14 @@ import com.example.majhong.R
 
 @Composable
 fun ModifyRulesDialog(
+    baseTai: () -> Int,
+    tai: () -> Int,
     onDismiss: () -> Unit,
     onModifyRules: (Int, Int, Boolean) -> Unit
 ) {
-    var baseTai by remember { mutableStateOf("30") }
+    var baseTaiText by remember { mutableStateOf(baseTai().toString()) }
     var baseTaiError by remember { mutableStateOf(false) }
-    var tai by remember { mutableStateOf("10") }
+    var taiText by remember { mutableStateOf(tai().toString()) }
     var taiError by remember { mutableStateOf(false) }
     var switchOfDraw by remember { mutableStateOf(true) }
     Dialog(onDismissRequest = onDismiss) {
@@ -59,9 +61,9 @@ fun ModifyRulesDialog(
                 ) {
                     Text(text = "底台", fontSize = 20.sp)
                     OutlinedTextField(
-                        value = baseTai,
+                        value = baseTaiText,
                         onValueChange = {
-                            baseTai = it
+                            baseTaiText = it
                             baseTaiError = !it.isDigitsOnly()
                         },
                         label = { Text("底台") },
@@ -96,9 +98,9 @@ fun ModifyRulesDialog(
                 ) {
                     Text(text = "台數", fontSize = 20.sp)
                     OutlinedTextField(
-                        value = tai,
+                        value = taiText,
                         onValueChange = {
-                            tai = it
+                            taiText = it
                             taiError = !it.isDigitsOnly()
                         },
                         label = { Text("台數") },
@@ -143,10 +145,10 @@ fun ModifyRulesDialog(
                     })
                 }
                 TextButton(onClick = {
-                    if (baseTai.isDigitsOnly())
-                        if (baseTai.isDigitsOnly() && tai.isDigitsOnly()) onModifyRules(
-                            baseTai.toInt(),
-                            tai.toInt(),
+                    if (baseTaiText.isDigitsOnly())
+                        if (baseTaiText.isDigitsOnly() && taiText.isDigitsOnly()) onModifyRules(
+                            baseTaiText.toInt(),
+                            taiText.toInt(),
                             switchOfDraw
                         )
                 }, modifier = Modifier.padding(10.dp)) {

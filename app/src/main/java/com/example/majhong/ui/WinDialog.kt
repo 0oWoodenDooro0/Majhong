@@ -32,7 +32,8 @@ import com.example.majhong.R
 @Composable
 fun WinDialog(
     onDismiss: () -> Unit,
-    bankerPlayerState: () -> PlayerState,
+    currentPlayerIsBanker: (PlayerState) -> Boolean,
+    selectedPlayerIsBanker: (PlayerState) -> Boolean,
     continueToBank: () -> Int,
     currentPlayerState: PlayerState,
     selectedPlayerState: (Int) -> PlayerState,
@@ -142,12 +143,13 @@ fun WinDialog(
                         modifier = Modifier.padding(5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "牌型${stateOfTai}台", fontSize = 12.sp, color = Color.Gray
-                        )
+                        Text(text = "牌型${stateOfTai}台", fontSize = 12.sp, color = Color.Gray)
                         Text(text = (tai() * stateOfTai).toString(), fontSize = 12.sp)
                     }
-                    if (currentPlayerState == bankerPlayerState() || selectedPlayerData == bankerPlayerState()) {
+                    if (currentPlayerIsBanker(currentPlayerState) || selectedPlayerIsBanker(
+                            selectedPlayerData
+                        )
+                    ) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -172,7 +174,10 @@ fun WinDialog(
                             Text(text = "x3", fontSize = 12.sp)
                         }
                     }
-                    if (currentPlayerState == selectedPlayerData && currentPlayerState != bankerPlayerState()) {
+                    if (currentPlayerState == selectedPlayerData && !currentPlayerIsBanker(
+                            currentPlayerState
+                        )
+                    ) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -197,16 +202,13 @@ fun WinDialog(
                             text = "總數", fontSize = 12.sp, color = Color.Gray
                         )
                         Text(
-                            text = calculateTotal(
-                                selectedPlayerData, stateOfTai
-                            ).toString(), fontSize = 12.sp
+                            text = calculateTotal(selectedPlayerData, stateOfTai).toString(),
+                            fontSize = 12.sp
                         )
                     }
                 }
                 TextButton(onClick = {
-                    buttonOnClick(
-                        selectedPlayerData, stateOfTai
-                    )
+                    buttonOnClick(selectedPlayerData, stateOfTai)
                 }) {
                     Text(text = "確定")
                 }

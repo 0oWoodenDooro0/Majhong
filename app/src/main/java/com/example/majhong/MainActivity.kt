@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
-import com.example.majhong.database.MajhongEvent
+import com.example.majhong.database.MajhongDatabaseEvent
 import com.example.majhong.ui.MainScreen
 import com.example.majhong.ui.MainToolBar
 import com.example.majhong.ui.theme.MajhongTheme
@@ -45,9 +45,11 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column {
                         MainToolBar(
+                            baseTai = { majhongViewModel.baseTai },
+                            tai = { majhongViewModel.tai },
                             onModifyRules = { baseTai, tai, drawToContinue ->
-                                majhongViewModel.onEvent(
-                                    MajhongEvent.CreateNewMajhong(
+                                majhongViewModel.onDatabaseEvent(
+                                    MajhongDatabaseEvent.UpsertNewMajhongDatabase(
                                         baseTai,
                                         tai,
                                         drawToContinue
@@ -55,7 +57,36 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         )
-                        MainScreen(majhongViewModel)
+                        MainScreen(
+                            round = majhongViewModel.directions[majhongViewModel.round],
+                            wind = majhongViewModel.directions[majhongViewModel.wind],
+                            players = majhongViewModel.playerStates,
+                            currentPlayerIsBanker = { current ->
+                                majhongViewModel.currentPlayerIsBanker(current)
+                            },
+                            selectedPlayerIsBanker = { selected ->
+                                majhongViewModel.selectedPlayerIsBanker(selected)
+                            },
+                            continueToBank = { majhongViewModel.continueToBank },
+                            selectedPlayerState = { index ->
+                                majhongViewModel.playerStates[index]
+                            },
+                            baseTai = { majhongViewModel.baseTai },
+                            tai = { majhongViewModel.tai },
+                            isAllPlayerNamed = { majhongViewModel.isAllPlayerNamed() },
+                            calculateTotal =
+                            { current, selected, numberOfTai ->
+                                majhongViewModel.calculateTotal(current, selected, numberOfTai)
+                            },
+                            updateName = { current, playerName ->
+                                majhongViewModel.updatePlayerName(current, playerName)
+                            },
+                            updateScore =
+                            { current, selected, numberOfTai ->
+                                majhongViewModel.updateScore(current, selected, numberOfTai)
+                            },
+                            draw = { majhongViewModel.draw() }
+                        )
                     }
                 }
             }
