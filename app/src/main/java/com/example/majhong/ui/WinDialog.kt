@@ -7,13 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +46,6 @@ fun WinDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(15.dp),
-            modifier = Modifier.wrapContentSize(),
             shadowElevation = 5.dp
         ) {
             var stateOfTai by remember { mutableStateOf(0) }
@@ -68,7 +66,7 @@ fun WinDialog(
                             fontSize = 16.sp,
                             modifier = Modifier.padding(bottom = 15.dp)
                         )
-                        Button(onClick = {
+                        TextButton(onClick = {
                             if (stateOfTai < 50) stateOfTai++
                         }) {
                             Icon(
@@ -78,10 +76,9 @@ fun WinDialog(
                         }
                         Text(
                             text = stateOfTai.toString(),
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(10.dp)
+                            fontSize = 20.sp
                         )
-                        Button(onClick = {
+                        TextButton(onClick = {
                             if (stateOfTai > 0) stateOfTai--
                         }) {
                             Icon(
@@ -100,7 +97,7 @@ fun WinDialog(
                             fontSize = 16.sp,
                             modifier = Modifier.padding(bottom = 15.dp)
                         )
-                        Button(onClick = {
+                        TextButton(onClick = {
                             if (stateOfPlayer < 3) stateOfPlayer += 1
                             selectedPlayerData = selectedPlayerState(stateOfPlayer)
                         }) {
@@ -111,10 +108,9 @@ fun WinDialog(
                         }
                         Text(
                             text = if (selectedPlayerData == currentPlayerState) "自摸" else selectedPlayerData.name,
-                            fontSize = 20.sp,
-                            modifier = Modifier.padding(10.dp)
+                            fontSize = 20.sp
                         )
-                        Button(onClick = {
+                        TextButton(onClick = {
                             if (stateOfPlayer > 0) stateOfPlayer -= 1
                             selectedPlayerData = selectedPlayerState(stateOfPlayer)
                         }) {
@@ -126,7 +122,7 @@ fun WinDialog(
                     }
                 }
                 Divider(
-                    modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = Color.LightGray
+                    modifier = Modifier.fillMaxWidth(), thickness = 2.dp
                 )
                 Row(
                     modifier = Modifier
@@ -207,7 +203,7 @@ fun WinDialog(
                         )
                     }
                 }
-                Button(onClick = {
+                TextButton(onClick = {
                     buttonOnClick(
                         selectedPlayerData, stateOfTai
                     )

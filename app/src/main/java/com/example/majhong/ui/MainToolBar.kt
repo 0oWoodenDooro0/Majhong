@@ -23,10 +23,11 @@ import com.example.majhong.R
 
 @Composable
 fun MainToolBar(
-    createNewMajhong: () -> Unit
+    onModifyRules: (Int, Int, Boolean) -> Unit
 ) {
     var showDiceDialog by remember { mutableStateOf(false) }
     var showNewDialog by remember { mutableStateOf(false) }
+    var showModifyRulesDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
         ActionButton(
             modifier = Modifier
@@ -76,9 +77,17 @@ fun MainToolBar(
     }
     if (showNewDialog) {
         NewDialog(onDismiss = { showNewDialog = false }, onConfirm = {
-            createNewMajhong()
             showNewDialog = false
+            showModifyRulesDialog = true
         })
+    }
+    if (showModifyRulesDialog) {
+        ModifyRulesDialog(
+            onDismiss = { showModifyRulesDialog = false },
+            onModifyRules = { baseTai, tai, drawToContinue ->
+                onModifyRules(baseTai, tai, drawToContinue)
+                showModifyRulesDialog = false
+            })
     }
     if (showDiceDialog) {
         DiceDialog {

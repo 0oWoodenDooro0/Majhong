@@ -1,6 +1,5 @@
 package com.example.majhong.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,9 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,17 +48,13 @@ fun MainScreen(viewModel: MajhongViewModel) {
                 viewModel.updateScore(current, selected, numberOfTai)
             }
         Row(modifier = Modifier.padding(15.dp)) {
-            Text(
-                text = "${viewModel.directions[viewModel.round]}圈${viewModel.directions[viewModel.wind]}風",
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(10.dp)
-                    )
-                    .padding(10.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-            )
+            ElevatedButton(onClick = { }) {
+                Text(
+                    text = "${viewModel.directions[viewModel.round]}圈${viewModel.directions[viewModel.wind]}風",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
         Row(
             modifier = Modifier

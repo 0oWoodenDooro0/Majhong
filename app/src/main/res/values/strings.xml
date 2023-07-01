@@ -9,4 +9,5 @@
     <string name="casino_content">Dice</string>
     <string name="dice_content">Dice</string>
     <string name="remove_content">remove</string>
+    <string name="error_content">error</string>
 </resources>

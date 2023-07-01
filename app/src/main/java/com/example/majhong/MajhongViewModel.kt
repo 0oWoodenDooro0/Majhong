@@ -45,15 +45,14 @@ class MajhongViewModel(
 
     fun onEvent(event: MajhongEvent) {
         when (event) {
-            is MajhongEvent.InitMajhongAndPlayer ->{
+            is MajhongEvent.InitMajhongAndPlayer -> {
                 viewModelScope.launch {
                     for (i in 0 until 4) {
                         val player = playerDao.getPlayerByDirection(i)
                         if (player != null) {
                             _playerStates[i].name = player.name
                             _playerStates[i].score.value = player.score
-                        }
-                        else{
+                        } else {
                             _playerStates[i].name = ""
                             _playerStates[i].score.value = 0
                         }
@@ -93,7 +92,7 @@ class MajhongViewModel(
             is MajhongEvent.CreateNewMajhong -> {
                 viewModelScope.launch {
                     playerDao.deleteAllPlayer()
-                    majhongDao.upsertMajhong(Majhong(0, 0, 0, 0, 30, 10))
+                    majhongDao.upsertMajhong(Majhong(0, 0, 0, 0, event.baseTai, event.tai))
                     onEvent(MajhongEvent.InitMajhongAndPlayer)
                 }
             }

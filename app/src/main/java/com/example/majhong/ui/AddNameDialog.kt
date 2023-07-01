@@ -3,11 +3,10 @@ package com.example.majhong.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +27,6 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
     ) {
         Surface(
             shape = RoundedCornerShape(15.dp),
-            modifier = Modifier.wrapContentSize(),
             shadowElevation = 5.dp
         ) {
             var name by remember { mutableStateOf("") }
@@ -51,7 +49,7 @@ fun AddNameDialog(onDismiss: () -> Unit, buttonOnClick: (String) -> Unit) {
                             textAlign = TextAlign.End,
                         )
                     })
-                Button(onClick = { buttonOnClick(name) }) {
+                TextButton(onClick = { buttonOnClick(name) }) {
                     Text(text = "確定")
                 }
             }

@@ -44,7 +44,17 @@ class MainActivity : ComponentActivity() {
             MajhongTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column {
-                        MainToolBar { majhongViewModel.onEvent(MajhongEvent.CreateNewMajhong) }
+                        MainToolBar(
+                            onModifyRules = { baseTai, tai, drawToContinue ->
+                                majhongViewModel.onEvent(
+                                    MajhongEvent.CreateNewMajhong(
+                                        baseTai,
+                                        tai,
+                                        drawToContinue
+                                    )
+                                )
+                            }
+                        )
                         MainScreen(majhongViewModel)
                     }
                 }
