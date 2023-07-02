@@ -31,11 +31,11 @@ fun MainScreen(
     tai: () -> Int,
     isAllPlayerNamed: () -> Boolean,
     calculateTotal: (Player, Player, Int) -> Int,
-    updateName: (Player, String) -> Unit,
+    updateName: (Player, String, Int) -> Unit,
     updateScore: (Player, Player, Int) -> Unit,
     draw: () -> Unit,
     requiredAllPlayerName: () -> Unit,
-    isNameRepeated:(String) -> Boolean
+    isNameRepeated: (String) -> Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -68,7 +68,9 @@ fun MainScreen(
                 tai,
                 isAllPlayerNamed,
                 calculateTotal,
-                updateName,
+                { current, playerName ->
+                    updateName(current, playerName, 2)
+                },
                 updateScore,
                 requiredAllPlayerName,
                 isNameRepeated
@@ -91,7 +93,9 @@ fun MainScreen(
                 tai,
                 isAllPlayerNamed,
                 calculateTotal,
-                updateName,
+                { current, playerName ->
+                    updateName(current, playerName, 3)
+                },
                 updateScore,
                 requiredAllPlayerName,
                 isNameRepeated
@@ -118,7 +122,9 @@ fun MainScreen(
                 tai,
                 isAllPlayerNamed,
                 calculateTotal,
-                updateName,
+                { current, playerName ->
+                    updateName(current, playerName, 1)
+                },
                 updateScore,
                 requiredAllPlayerName,
                 isNameRepeated
@@ -141,7 +147,9 @@ fun MainScreen(
                 tai,
                 isAllPlayerNamed,
                 calculateTotal,
-                updateName,
+                { current, playerName ->
+                    updateName(current, playerName, 0)
+                },
                 updateScore,
                 requiredAllPlayerName,
                 isNameRepeated

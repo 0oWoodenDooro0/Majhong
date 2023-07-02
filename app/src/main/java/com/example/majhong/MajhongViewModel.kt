@@ -160,8 +160,8 @@ class MajhongViewModel(
         return Player()
     }
 
-    fun isNameRepeated(name: String): Boolean{
-        for (i in players){
+    fun isNameRepeated(name: String): Boolean {
+        for (i in players) {
             if (i.name == name) return true
         }
         return false
@@ -179,14 +179,22 @@ class MajhongViewModel(
         return player.direction == banker
     }
 
-    fun updatePlayerName(player: Player, name: String) {
+    fun updatePlayerName(player: Player, name: String, direction: Int = -1) {
         val playerList = mutableListOf<Player>()
         for (i in players) {
-            if (i == player) playerList.add(player.copy(name = name))
+            if (i == player) playerList.add(player.copy(name = name, direction = direction))
             else playerList.add(i)
         }
         players = playerList
-        onDatabaseEvent(MajhongDatabaseEvent.UpsertPlayer(player.copy(name = name)))
+        onDatabaseEvent(
+            MajhongDatabaseEvent.UpsertPlayer(
+                player.copy(
+                    name = name,
+                    direction = direction
+                )
+            )
+        )
+        onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
     }
 
     private fun updatePlayerScore(player: Player, score: Int) {

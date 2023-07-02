@@ -118,8 +118,8 @@ class MainActivity : ComponentActivity() {
                             { current, selected, numberOfTai ->
                                 majhongViewModel.calculateTotal(current, selected, numberOfTai)
                             },
-                            updateName = { current, playerName ->
-                                majhongViewModel.updatePlayerName(current, playerName)
+                            updateName = { current, playerName, direction->
+                                majhongViewModel.updatePlayerName(current, playerName, direction)
                             },
                             updateScore =
                             { current, selected, numberOfTai ->
