@@ -31,7 +31,8 @@ fun MainToolBar(
     onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
     AddPlayer: (String) -> Unit,
     players: () -> List<Player>,
-    swapPlayer: (Player, Player) -> Unit
+    swapPlayer: (Player, Player) -> Unit,
+    isNameRepeated: (String) -> Boolean
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
@@ -91,10 +92,14 @@ fun MainToolBar(
                 showModifyRulesDialog = false
             })
     } else if (showAddPlayerDialog) {
-        AddPlayerDialog(onDismiss = { showAddPlayerDialog = false }, buttonOnClick = { name ->
-            AddPlayer(name)
-            showAddPlayerDialog = false
-        })
+        AddPlayerDialog(
+            onDismiss = { showAddPlayerDialog = false },
+            isNameRepeated = isNameRepeated,
+            buttonOnClick = { name ->
+                AddPlayer(name)
+                showAddPlayerDialog = false
+            }
+        )
     } else if (showTranspositionDialog) {
         TranspositionDialog(onDismiss = { showTranspositionDialog = false },
             players = players,

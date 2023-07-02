@@ -43,7 +43,8 @@ fun PlayerCard(
     calculateTotal: (Player, Player, Int) -> Int,
     updateName: (Player, String) -> Unit,
     updateScore: (Player, Player, Int) -> Unit,
-    requiredAllPlayerName: () -> Unit
+    requiredAllPlayerName: () -> Unit,
+    isNameRepeated: (String) -> Boolean
 ) {
     var showWinDialog by remember { mutableStateOf(false) }
     var showAddPlayerDialog by remember { mutableStateOf(false) }
@@ -69,7 +70,7 @@ fun PlayerCard(
     if (showAddPlayerDialog) {
         AddPlayerDialog(onDismiss = {
             showAddPlayerDialog = false
-        }, buttonOnClick = { playerName ->
+        }, isNameRepeated = isNameRepeated, buttonOnClick = { playerName ->
             updateName(currentPlayer, playerName)
             showAddPlayerDialog = false
         })

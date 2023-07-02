@@ -83,6 +83,9 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             players = { majhongViewModel.players },
+                            isNameRepeated = { name ->
+                                majhongViewModel.isNameRepeated(name)
+                            },
                             swapPlayer = { player1, player2 ->
                                 majhongViewModel.onDatabaseEvent(
                                     MajhongDatabaseEvent.SwapPlayer(
@@ -130,6 +133,9 @@ class MainActivity : ComponentActivity() {
                                         duration = SnackbarDuration.Short
                                     )
                                 }
+                            },
+                            isNameRepeated = { name ->
+                                majhongViewModel.isNameRepeated(name)
                             }
                         )
                     }

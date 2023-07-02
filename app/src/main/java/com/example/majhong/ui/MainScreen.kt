@@ -34,7 +34,8 @@ fun MainScreen(
     updateName: (Player, String) -> Unit,
     updateScore: (Player, Player, Int) -> Unit,
     draw: () -> Unit,
-    requiredAllPlayerName: () -> Unit
+    requiredAllPlayerName: () -> Unit,
+    isNameRepeated:(String) -> Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -69,7 +70,8 @@ fun MainScreen(
                 calculateTotal,
                 updateName,
                 updateScore,
-                requiredAllPlayerName
+                requiredAllPlayerName,
+                isNameRepeated
             )
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -91,7 +93,8 @@ fun MainScreen(
                 calculateTotal,
                 updateName,
                 updateScore,
-                requiredAllPlayerName
+                requiredAllPlayerName,
+                isNameRepeated
             )
             Column(
                 modifier = Modifier
@@ -117,7 +120,8 @@ fun MainScreen(
                 calculateTotal,
                 updateName,
                 updateScore,
-                requiredAllPlayerName
+                requiredAllPlayerName,
+                isNameRepeated
             )
         }
         Row(
@@ -139,7 +143,8 @@ fun MainScreen(
                 calculateTotal,
                 updateName,
                 updateScore,
-                requiredAllPlayerName
+                requiredAllPlayerName,
+                isNameRepeated
             )
             Spacer(modifier = Modifier.weight(1f))
         }

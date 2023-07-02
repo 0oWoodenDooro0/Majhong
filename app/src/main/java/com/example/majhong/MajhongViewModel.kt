@@ -160,6 +160,13 @@ class MajhongViewModel(
         return Player()
     }
 
+    fun isNameRepeated(name: String): Boolean{
+        for (i in players){
+            if (i.name == name) return true
+        }
+        return false
+    }
+
     private fun getBanker(): Player {
         return getPlayerByDirection(banker)
     }
