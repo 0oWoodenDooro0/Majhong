@@ -27,10 +27,10 @@ import com.example.majhong.database.Player
 @Composable
 fun TranspositionDialog(
     onDismiss: () -> Unit,
-    players: List<Player>,
+    players: () -> List<Player>,
     swapPlayers: (Player, Player) -> Unit
 ) {
-    val playerList by remember { mutableStateOf(players) }
+    val playerList by remember { mutableStateOf(players()) }
     var stateOfLeftIndex by remember { mutableStateOf(0) }
     var stateOfRightIndex by remember { mutableStateOf(1) }
     Dialog(onDismissRequest = onDismiss) {

@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                             },
-                            players = majhongViewModel.players,
+                            players = { majhongViewModel.players },
                             swapPlayer = { player1, player2 ->
                                 majhongViewModel.onDatabaseEvent(
                                     MajhongDatabaseEvent.SwapPlayer(

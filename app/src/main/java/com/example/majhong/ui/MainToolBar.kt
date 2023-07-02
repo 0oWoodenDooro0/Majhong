@@ -30,7 +30,7 @@ fun MainToolBar(
     newToClearPlayer: () -> Boolean,
     onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
     AddPlayer: (String) -> Unit,
-    players: List<Player>,
+    players: () -> List<Player>,
     swapPlayer: (Player, Player) -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
@@ -39,51 +39,41 @@ fun MainToolBar(
     var showTranspositionDialog by remember { mutableStateOf(false) }
     var showDiceDialog by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxWidth()) {
-        ActionButton(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { showNewDialog = true }
-                .padding(10.dp),
+        ActionButton(modifier = Modifier
+            .weight(1f)
+            .clickable { showNewDialog = true }
+            .padding(10.dp),
             painterResourceId = R.drawable.baseline_add_24,
             stringResource = R.string.add_content,
-            actionDescription = "新牌局"
-        )
-        ActionButton(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { }
-                .padding(10.dp),
+            actionDescription = "新牌局")
+        ActionButton(modifier = Modifier
+            .weight(1f)
+            .clickable { }
+            .padding(10.dp),
             painterResourceId = R.drawable.baseline_undo_24,
             stringResource = R.string.undo_content,
-            actionDescription = "還原"
-        )
-        ActionButton(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { showAddPlayerDialog = true }
-                .padding(10.dp),
+            actionDescription = "還原")
+        ActionButton(modifier = Modifier
+            .weight(1f)
+            .clickable { showAddPlayerDialog = true }
+            .padding(10.dp),
             painterResourceId = R.drawable.baseline_person_add_alt_1_24,
             stringResource = R.string.person_add_content,
-            actionDescription = "新增玩家"
-        )
-        ActionButton(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { showTranspositionDialog = true }
-                .padding(10.dp),
+            actionDescription = "新增玩家")
+        ActionButton(modifier = Modifier
+            .weight(1f)
+            .clickable { showTranspositionDialog = true }
+            .padding(10.dp),
             painterResourceId = R.drawable.baseline_swap_vert_24,
             stringResource = R.string.swap_content,
-            actionDescription = "換人/換位"
-        )
-        ActionButton(
-            modifier = Modifier
-                .weight(1f)
-                .clickable { showDiceDialog = true }
-                .padding(10.dp),
+            actionDescription = "換人/換位")
+        ActionButton(modifier = Modifier
+            .weight(1f)
+            .clickable { showDiceDialog = true }
+            .padding(10.dp),
             painterResourceId = R.drawable.outline_casino_24,
             stringResource = R.string.casino_content,
-            actionDescription = "擲骰"
-        )
+            actionDescription = "擲骰")
     }
     if (showNewDialog) {
         NewDialog(onDismiss = { showNewDialog = false }, onConfirm = {
@@ -91,8 +81,7 @@ fun MainToolBar(
             showModifyRulesDialog = true
         })
     } else if (showModifyRulesDialog) {
-        ModifyRulesDialog(
-            baseTai = baseTai,
+        ModifyRulesDialog(baseTai = baseTai,
             tai = tai,
             drawToContinue = drawToContinue,
             newToClearPlayer = newToClearPlayer,
@@ -107,14 +96,12 @@ fun MainToolBar(
             showAddPlayerDialog = false
         })
     } else if (showTranspositionDialog) {
-        TranspositionDialog(
-            onDismiss = { showTranspositionDialog = false },
+        TranspositionDialog(onDismiss = { showTranspositionDialog = false },
             players = players,
             swapPlayers = { player1, player2 ->
                 swapPlayer(player1, player2)
                 showTranspositionDialog = false
-            }
-        )
+            })
     } else if (showDiceDialog) {
         DiceDialog {
             showDiceDialog = false
@@ -124,10 +111,7 @@ fun MainToolBar(
 
 @Composable
 fun ActionButton(
-    modifier: Modifier,
-    painterResourceId: Int,
-    stringResource: Int,
-    actionDescription: String
+    modifier: Modifier, painterResourceId: Int, stringResource: Int, actionDescription: String
 ) {
     Column(
         modifier = modifier,
@@ -140,8 +124,7 @@ fun ActionButton(
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = actionDescription,
-            fontSize = 12.sp
+            text = actionDescription, fontSize = 12.sp
         )
     }
 }
