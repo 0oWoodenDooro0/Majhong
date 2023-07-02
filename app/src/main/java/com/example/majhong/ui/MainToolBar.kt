@@ -19,8 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.majhong.database.PlayerState
 import com.example.majhong.R
+import com.example.majhong.database.Player
 
 @Composable
 fun MainToolBar(
@@ -30,8 +30,8 @@ fun MainToolBar(
     newToClearPlayer: () -> Boolean,
     onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
     AddPlayer: (String) -> Unit,
-    players: List<PlayerState>,
-    swapPlayer: (PlayerState, PlayerState) -> Unit
+    players: List<Player>,
+    swapPlayer: (Player, Player) -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }

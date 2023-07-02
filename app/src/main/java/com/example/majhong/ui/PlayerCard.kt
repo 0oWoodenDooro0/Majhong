@@ -24,25 +24,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.majhong.database.PlayerState
 import com.example.majhong.R
+import com.example.majhong.database.Player
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerCard(
     modifier: Modifier,
-    currentPlayerState: PlayerState,
-    currentPlayerIsBanker: (PlayerState) -> Boolean,
-    selectedPlayerIsBanker: (PlayerState) -> Boolean,
+    currentPlayer: Player,
+    currentPlayerIsBanker: (Player) -> Boolean,
+    selectedPlayerIsBanker: (Player) -> Boolean,
     continueToBank: () -> Int,
-    selectedPlayerState: (Int) -> PlayerState,
+    selectedPlayer: (Int) -> Player,
     baseTai: () -> Int,
     tai: () -> Int,
     isAllPlayerNamed: () -> Boolean,
-    calculateTotal: (PlayerState, PlayerState, Int) -> Int,
-    updateName: (PlayerState, String) -> Unit,
-    updateScore: (PlayerState, PlayerState, Int) -> Unit,
+    calculateTotal: (Player, Player, Int) -> Int,
+    updateName: (Player, String) -> Unit,
+    updateScore: (Player, Player, Int) -> Unit,
     requiredAllPlayerName: () -> Unit
 ) {
     var showWinDialog by remember { mutableStateOf(false) }
@@ -54,15 +54,15 @@ fun PlayerCard(
             currentPlayerIsBanker = currentPlayerIsBanker,
             selectedPlayerIsBanker = selectedPlayerIsBanker,
             continueToBank = continueToBank,
-            currentPlayerState = currentPlayerState,
-            selectedPlayerState = selectedPlayerState,
+            currentPlayer = currentPlayer,
+            selectedPlayer = selectedPlayer,
             baseTai = baseTai,
             tai = tai,
             calculateTotal = { selected, numberOfTai ->
-                calculateTotal(currentPlayerState, selected, numberOfTai)
+                calculateTotal(currentPlayer, selected, numberOfTai)
             },
             buttonOnClick = { selected, numberOfTai ->
-                updateScore(currentPlayerState, selected, numberOfTai)
+                updateScore(currentPlayer, selected, numberOfTai)
                 showWinDialog = false
             })
     }
@@ -70,7 +70,7 @@ fun PlayerCard(
         AddPlayerDialog(onDismiss = {
             showAddPlayerDialog = false
         }, buttonOnClick = { playerName ->
-            updateName(currentPlayerState, playerName)
+            updateName(currentPlayer, playerName)
             showAddPlayerDialog = false
         })
     }
@@ -81,7 +81,7 @@ fun PlayerCard(
                 .padding(5.dp),
             elevation = CardDefaults.cardElevation(5.dp),
             onClick = {
-                if (currentPlayerState.name == "") {
+                if (currentPlayer.name == "") {
                     showAddPlayerDialog = true
                 } else if (!isAllPlayerNamed()) {
                     requiredAllPlayerName()
@@ -96,18 +96,18 @@ fun PlayerCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                if (currentPlayerState.name != "") {
+                if (currentPlayer.name != "") {
                     AutoSizeText(
-                        text = currentPlayerState.name,
+                        text = currentPlayer.name,
                         maxTextSize = 20.sp,
                         textAlign = TextAlign.Center
                     )
                     AutoSizeText(
-                        text = currentPlayerState.score.value.toString(),
+                        text = currentPlayer.score.toString(),
                         maxTextSize = 32.sp,
                         textAlign = TextAlign.Center
                     )
-                    if (currentPlayerIsBanker(currentPlayerState) && continueToBank() == 0) {
+                    if (currentPlayerIsBanker(currentPlayer) && continueToBank() == 0) {
                         Text(
                             text = "莊",
                             modifier = Modifier
@@ -120,7 +120,7 @@ fun PlayerCard(
                             color = MaterialTheme.colorScheme.onSecondary,
                             textAlign = TextAlign.Center,
                         )
-                    } else if (currentPlayerIsBanker(currentPlayerState)) {
+                    } else if (currentPlayerIsBanker(currentPlayer)) {
                         Text(
                             text = "連${continueToBank()}",
                             modifier = Modifier

@@ -26,21 +26,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.majhong.database.PlayerState
 import com.example.majhong.R
+import com.example.majhong.database.Player
 
 @Composable
 fun WinDialog(
     onDismiss: () -> Unit,
-    currentPlayerIsBanker: (PlayerState) -> Boolean,
-    selectedPlayerIsBanker: (PlayerState) -> Boolean,
+    currentPlayerIsBanker: (Player) -> Boolean,
+    selectedPlayerIsBanker: (Player) -> Boolean,
     continueToBank: () -> Int,
-    currentPlayerState: PlayerState,
-    selectedPlayerState: (Int) -> PlayerState,
+    currentPlayer: Player,
+    selectedPlayer: (Int) -> Player,
     baseTai: () -> Int,
     tai: () -> Int,
-    calculateTotal: (PlayerState, Int) -> Int,
-    buttonOnClick: (PlayerState, Int) -> Unit
+    calculateTotal: (Player, Int) -> Int,
+    buttonOnClick: (Player, Int) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss
@@ -51,7 +51,7 @@ fun WinDialog(
         ) {
             var stateOfTai by remember { mutableStateOf(0) }
             var stateOfPlayer by remember { mutableStateOf(0) }
-            var selectedPlayerData by remember { mutableStateOf(selectedPlayerState(stateOfPlayer)) }
+            var selectedPlayerData by remember { mutableStateOf(selectedPlayer(stateOfPlayer)) }
             Column(
                 modifier = Modifier.padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -100,7 +100,7 @@ fun WinDialog(
                         )
                         TextButton(onClick = {
                             if (stateOfPlayer < 3) stateOfPlayer += 1
-                            selectedPlayerData = selectedPlayerState(stateOfPlayer)
+                            selectedPlayerData = selectedPlayer(stateOfPlayer)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -108,12 +108,12 @@ fun WinDialog(
                             )
                         }
                         Text(
-                            text = if (selectedPlayerData == currentPlayerState) "自摸" else selectedPlayerData.name,
+                            text = if (selectedPlayerData == currentPlayer) "自摸" else selectedPlayerData.name,
                             fontSize = 20.sp
                         )
                         TextButton(onClick = {
                             if (stateOfPlayer > 0) stateOfPlayer -= 1
-                            selectedPlayerData = selectedPlayerState(stateOfPlayer)
+                            selectedPlayerData = selectedPlayer(stateOfPlayer)
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
@@ -146,7 +146,7 @@ fun WinDialog(
                         Text(text = "牌型${stateOfTai}台", fontSize = 12.sp, color = Color.Gray)
                         Text(text = (tai() * stateOfTai).toString(), fontSize = 12.sp)
                     }
-                    if (currentPlayerIsBanker(currentPlayerState) || selectedPlayerIsBanker(
+                    if (currentPlayerIsBanker(currentPlayer) || selectedPlayerIsBanker(
                             selectedPlayerData
                         )
                     ) {
@@ -165,7 +165,7 @@ fun WinDialog(
                             )
                         }
                     }
-                    if (currentPlayerState == selectedPlayerData) {
+                    if (currentPlayer == selectedPlayerData) {
                         Column(
                             modifier = Modifier.padding(5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -174,8 +174,8 @@ fun WinDialog(
                             Text(text = "x3", fontSize = 12.sp)
                         }
                     }
-                    if (currentPlayerState == selectedPlayerData && !currentPlayerIsBanker(
-                            currentPlayerState
+                    if (currentPlayer == selectedPlayerData && !currentPlayerIsBanker(
+                            currentPlayer
                         )
                     ) {
                         Column(

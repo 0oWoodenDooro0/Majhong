@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                             },
-                            players = majhongViewModel.playerStates,
+                            players = majhongViewModel.players,
                             swapPlayer = { player1, player2 ->
                                 majhongViewModel.onDatabaseEvent(
                                     MajhongDatabaseEvent.SwapPlayer(
@@ -98,16 +98,15 @@ class MainActivity : ComponentActivity() {
                         MainScreen(
                             round = majhongViewModel.directions[majhongViewModel.round],
                             wind = majhongViewModel.directions[majhongViewModel.wind],
-                            players = majhongViewModel.playerStates,
                             currentPlayerIsBanker = { current ->
                                 majhongViewModel.currentPlayerIsBanker(current)
                             },
                             selectedPlayerIsBanker = { selected ->
-                                majhongViewModel.selectedPlayerIsBanker(selected)
+                                majhongViewModel.playerIsBanker(selected)
                             },
                             continueToBank = { majhongViewModel.continueToBank },
-                            selectedPlayerState = { index ->
-                                majhongViewModel.playerStates[index]
+                            selectedPlayer = { index ->
+                                majhongViewModel.getPlayerByDirection(index)
                             },
                             baseTai = { majhongViewModel.baseTai },
                             tai = { majhongViewModel.tai },

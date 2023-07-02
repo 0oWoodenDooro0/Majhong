@@ -17,23 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.majhong.database.PlayerState
+import com.example.majhong.database.Player
 
 @Composable
 fun MainScreen(
     round: String,
     wind: String,
-    players: List<PlayerState>,
-    currentPlayerIsBanker: (PlayerState) -> Boolean,
-    selectedPlayerIsBanker: (PlayerState) -> Boolean,
+    currentPlayerIsBanker: (Player) -> Boolean,
+    selectedPlayerIsBanker: (Player) -> Boolean,
     continueToBank: () -> Int,
-    selectedPlayerState: (Int) -> PlayerState,
+    selectedPlayer: (Int) -> Player,
     baseTai: () -> Int,
     tai: () -> Int,
     isAllPlayerNamed: () -> Boolean,
-    calculateTotal: (PlayerState, PlayerState, Int) -> Int,
-    updateName: (PlayerState, String) -> Unit,
-    updateScore: (PlayerState, PlayerState, Int) -> Unit,
+    calculateTotal: (Player, Player, Int) -> Int,
+    updateName: (Player, String) -> Unit,
+    updateScore: (Player, Player, Int) -> Unit,
     draw: () -> Unit,
     requiredAllPlayerName: () -> Unit
 ) {
@@ -59,11 +58,11 @@ fun MainScreen(
             Spacer(modifier = Modifier.weight(1f))
             PlayerCard(
                 Modifier.weight(1f),
-                players[2],
+                selectedPlayer(2),
                 currentPlayerIsBanker,
                 selectedPlayerIsBanker,
                 continueToBank,
-                selectedPlayerState,
+                selectedPlayer,
                 baseTai,
                 tai,
                 isAllPlayerNamed,
@@ -81,11 +80,11 @@ fun MainScreen(
         ) {
             PlayerCard(
                 Modifier.weight(1f),
-                players[3],
+                selectedPlayer(3),
                 currentPlayerIsBanker,
                 selectedPlayerIsBanker,
                 continueToBank,
-                selectedPlayerState,
+                selectedPlayer,
                 baseTai,
                 tai,
                 isAllPlayerNamed,
@@ -107,11 +106,11 @@ fun MainScreen(
             }
             PlayerCard(
                 Modifier.weight(1f),
-                players[1],
+                selectedPlayer(1),
                 currentPlayerIsBanker,
                 selectedPlayerIsBanker,
                 continueToBank,
-                selectedPlayerState,
+                selectedPlayer,
                 baseTai,
                 tai,
                 isAllPlayerNamed,
@@ -129,11 +128,11 @@ fun MainScreen(
             Spacer(modifier = Modifier.weight(1f))
             PlayerCard(
                 Modifier.weight(1f),
-                players[0],
+                selectedPlayer(0),
                 currentPlayerIsBanker,
                 selectedPlayerIsBanker,
                 continueToBank,
-                selectedPlayerState,
+                selectedPlayer,
                 baseTai,
                 tai,
                 isAllPlayerNamed,

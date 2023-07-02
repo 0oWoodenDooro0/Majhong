@@ -22,15 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.majhong.R
-import com.example.majhong.database.PlayerState
+import com.example.majhong.database.Player
 
 @Composable
 fun TranspositionDialog(
     onDismiss: () -> Unit,
-    players: List<PlayerState>,
-    swapPlayers: (PlayerState, PlayerState) -> Unit
+    players: List<Player>,
+    swapPlayers: (Player, Player) -> Unit
 ) {
-    val playerStates by remember { mutableStateOf(players) }
+    val playerList by remember { mutableStateOf(players) }
     var stateOfLeftIndex by remember { mutableStateOf(0) }
     var stateOfRightIndex by remember { mutableStateOf(1) }
     Dialog(onDismissRequest = onDismiss) {
@@ -49,8 +49,8 @@ fun TranspositionDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         TextButton(onClick = {
-                            if (stateOfLeftIndex + 1 != stateOfRightIndex && stateOfLeftIndex + 1 < playerStates.size) stateOfLeftIndex++
-                            else if (stateOfLeftIndex + 2 < playerStates.size) stateOfLeftIndex += 2
+                            if (stateOfLeftIndex + 1 != stateOfRightIndex && stateOfLeftIndex + 1 < playerList.size) stateOfLeftIndex++
+                            else if (stateOfLeftIndex + 2 < playerList.size) stateOfLeftIndex += 2
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -58,7 +58,7 @@ fun TranspositionDialog(
                             )
                         }
                         Text(
-                            text = playerStates[stateOfLeftIndex].name,
+                            text = playerList[stateOfLeftIndex].name,
                             fontSize = 20.sp
                         )
                         TextButton(onClick = {
@@ -80,8 +80,8 @@ fun TranspositionDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         TextButton(onClick = {
-                            if (stateOfRightIndex + 1 != stateOfLeftIndex && stateOfRightIndex + 1 < playerStates.size) stateOfRightIndex++
-                            else if (stateOfRightIndex + 2 < playerStates.size) stateOfRightIndex += 2
+                            if (stateOfRightIndex + 1 != stateOfLeftIndex && stateOfRightIndex + 1 < playerList.size) stateOfRightIndex++
+                            else if (stateOfRightIndex + 2 < playerList.size) stateOfRightIndex += 2
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.baseline_keyboard_arrow_up_24),
@@ -89,7 +89,7 @@ fun TranspositionDialog(
                             )
                         }
                         Text(
-                            text = playerStates[stateOfRightIndex].name,
+                            text = playerList[stateOfRightIndex].name,
                             fontSize = 20.sp
                         )
                         TextButton(onClick = {
@@ -105,8 +105,8 @@ fun TranspositionDialog(
                 }
                 TextButton(onClick = {
                     swapPlayers(
-                        playerStates[stateOfLeftIndex],
-                        playerStates[stateOfRightIndex]
+                        playerList[stateOfLeftIndex],
+                        playerList[stateOfRightIndex]
                     )
                 }) {
                     Text(text = "確認")
