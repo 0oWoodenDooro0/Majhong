@@ -1,7 +1,5 @@
 package com.example.majhong.database
 
-import com.example.majhong.PlayerState
-
 sealed interface MajhongDatabaseEvent {
     object InitMajhongAndPlayerDatabase : MajhongDatabaseEvent
     data class UpsertPlayer(val player: Player) : MajhongDatabaseEvent

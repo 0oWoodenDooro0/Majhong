@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.majhong.PlayerState
+import com.example.majhong.database.PlayerState
 import com.example.majhong.R
 
 @Composable

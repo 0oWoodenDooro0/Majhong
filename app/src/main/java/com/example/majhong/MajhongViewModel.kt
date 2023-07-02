@@ -1,6 +1,5 @@
 package com.example.majhong
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +10,7 @@ import com.example.majhong.database.MajhongDao
 import com.example.majhong.database.MajhongDatabaseEvent
 import com.example.majhong.database.Player
 import com.example.majhong.database.PlayerDao
+import com.example.majhong.database.PlayerState
 import kotlinx.coroutines.launch
 
 fun Boolean.toInt() = if (this) 1 else 0
@@ -310,7 +310,3 @@ class MajhongViewModel(
         }
     }
 }
-
-data class PlayerState(
-    var name: String = "", var score: MutableState<Int> = mutableStateOf(0), var id: Int = 0
-)
