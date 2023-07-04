@@ -29,9 +29,10 @@ import com.example.majhong.database.Player
 fun BankerDialog(
     onDismiss: () -> Unit,
     getPlayerByDirection: (Int) -> Player,
-    resetBanker: (Int, Boolean, Boolean) -> Unit
+    resetBanker: (Int, Boolean, Boolean) -> Unit,
+    bankerIndex: () -> Int
 ) {
-    var radioButtonSelected by remember { mutableStateOf(0) }
+    var radioButtonSelected by remember { mutableStateOf(bankerIndex()) }
     var switchOfResetContinueToBank by remember { mutableStateOf(true) }
     var switchOfResetRoundWind by remember { mutableStateOf(false) }
     Dialog(

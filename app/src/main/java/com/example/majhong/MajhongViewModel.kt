@@ -22,7 +22,7 @@ class MajhongViewModel(
 
     val directions = listOf("東", "南", "西", "北")
 
-    private var banker by mutableStateOf(0)
+    var banker by mutableStateOf(0)
 
     var continueToBank by mutableStateOf(0)
         private set

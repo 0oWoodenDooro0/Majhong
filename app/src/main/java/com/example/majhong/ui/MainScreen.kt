@@ -41,7 +41,8 @@ fun MainScreen(
     requiredAllPlayerName: () -> Unit,
     isNameRepeated: (String) -> Boolean,
     players: () -> List<Player>,
-    resetBanker: (Int, Boolean, Boolean) -> Unit
+    resetBanker: (Int, Boolean, Boolean) -> Unit,
+    bankerIndex: () -> Int
 ) {
     var showSettleDialog by remember { mutableStateOf(false) }
     var showBankerDialog by remember { mutableStateOf(false) }
@@ -187,7 +188,8 @@ fun MainScreen(
             resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
                 resetBanker(bankerIndex, resetContinue, resetRoundWind)
                 showBankerDialog = false
-            }
+            },
+            bankerIndex = bankerIndex
         )
     }
     if (showSettleDialog) {

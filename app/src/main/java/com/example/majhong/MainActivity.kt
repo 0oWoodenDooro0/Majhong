@@ -150,7 +150,8 @@ class MainActivity : ComponentActivity() {
                             players = { majhongViewModel.players },
                             resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
                                 majhongViewModel.resetBanker(bankerIndex, resetContinue, resetRoundWind)
-                            }
+                            },
+                            bankerIndex = {majhongViewModel.banker}
                         )
                     }
                 }
