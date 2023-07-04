@@ -107,9 +107,9 @@ fun WinDialog(
                                 contentDescription = stringResource(id = R.string.arrow_up_content)
                             )
                         }
-                        Text(
+                        AutoSizeText(
                             text = if (selectedPlayerData == currentPlayer) "自摸" else selectedPlayerData.name,
-                            fontSize = 20.sp
+                            maxTextSize = 20.sp
                         )
                         TextButton(onClick = {
                             if (stateOfPlayer > 0) stateOfPlayer -= 1

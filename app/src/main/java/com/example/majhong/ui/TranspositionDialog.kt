@@ -109,7 +109,7 @@ fun TranspositionDialog(
                         playerList[stateOfRightIndex]
                     )
                 }) {
-                    Text(text = "確認")
+                    Text(text = "確定")
                 }
             }
         }

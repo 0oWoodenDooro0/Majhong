@@ -32,7 +32,9 @@ fun MainToolBar(
     AddPlayer: (String) -> Unit,
     players: () -> List<Player>,
     swapPlayer: (Player, Player) -> Unit,
-    isNameRepeated: (String) -> Boolean
+    isNameRepeated: (String) -> Boolean,
+    isAllPlayerNamed: () -> Boolean,
+    requiredAllPlayerName: () -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
@@ -56,14 +58,26 @@ fun MainToolBar(
             actionDescription = "還原")
         ActionButton(modifier = Modifier
             .weight(1f)
-            .clickable { showAddPlayerDialog = true }
+            .clickable {
+                if (isAllPlayerNamed()) {
+                    showAddPlayerDialog = true
+                } else {
+                    requiredAllPlayerName()
+                }
+            }
             .padding(10.dp),
             painterResourceId = R.drawable.baseline_person_add_alt_1_24,
             stringResource = R.string.person_add_content,
             actionDescription = "新增玩家")
         ActionButton(modifier = Modifier
             .weight(1f)
-            .clickable { showTranspositionDialog = true }
+            .clickable {
+                if (isAllPlayerNamed()) {
+                    showTranspositionDialog = true
+                } else {
+                    requiredAllPlayerName()
+                }
+            }
             .padding(10.dp),
             painterResourceId = R.drawable.baseline_swap_vert_24,
             stringResource = R.string.swap_content,
@@ -92,14 +106,12 @@ fun MainToolBar(
                 showModifyRulesDialog = false
             })
     } else if (showAddPlayerDialog) {
-        AddPlayerDialog(
-            onDismiss = { showAddPlayerDialog = false },
+        AddPlayerDialog(onDismiss = { showAddPlayerDialog = false },
             isNameRepeated = isNameRepeated,
             buttonOnClick = { name ->
                 AddPlayer(name)
                 showAddPlayerDialog = false
-            }
-        )
+            })
     } else if (showTranspositionDialog) {
         TranspositionDialog(onDismiss = { showTranspositionDialog = false },
             players = players,

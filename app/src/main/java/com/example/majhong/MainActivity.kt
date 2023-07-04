@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
                                         Player(name)
                                     )
                                 )
+                                majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
                             },
                             players = { majhongViewModel.players },
                             isNameRepeated = { name ->
@@ -93,6 +94,15 @@ class MainActivity : ComponentActivity() {
                                         player2
                                     )
                                 )
+                            },
+                            isAllPlayerNamed = { majhongViewModel.isAllPlayerNamed() },
+                            requiredAllPlayerName = {
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = "請先加入所有玩家",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
                             }
                         )
                     }
@@ -118,7 +128,7 @@ class MainActivity : ComponentActivity() {
                             { current, selected, numberOfTai ->
                                 majhongViewModel.calculateTotal(current, selected, numberOfTai)
                             },
-                            updateName = { current, playerName, direction->
+                            updateName = { current, playerName, direction ->
                                 majhongViewModel.updatePlayerName(current, playerName, direction)
                             },
                             updateScore =
@@ -136,6 +146,10 @@ class MainActivity : ComponentActivity() {
                             },
                             isNameRepeated = { name ->
                                 majhongViewModel.isNameRepeated(name)
+                            },
+                            players = { majhongViewModel.players },
+                            resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
+                                majhongViewModel.resetBanker(bankerIndex, resetContinue, resetRoundWind)
                             }
                         )
                     }

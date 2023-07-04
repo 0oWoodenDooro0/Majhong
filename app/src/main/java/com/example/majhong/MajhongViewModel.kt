@@ -142,7 +142,6 @@ class MajhongViewModel(
                     playerDao.updatePlayerDirectionById(
                         event.player1.direction, event.player2.id
                     )
-                    onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
                     onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
                 }
             }
@@ -158,6 +157,16 @@ class MajhongViewModel(
             if (i.direction == direction) return i
         }
         return Player()
+    }
+
+    fun resetBanker(bankerIndex: Int, resetContinue: Boolean, resetRoundWind: Boolean){
+        banker = bankerIndex
+        if(resetContinue) continueToBank = 0
+        if(resetRoundWind) {
+            wind = 0
+            round = 0
+        }
+        onDatabaseEvent(MajhongDatabaseEvent.UpsertMajhongDatabase)
     }
 
     fun isNameRepeated(name: String): Boolean {

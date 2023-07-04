@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -35,15 +39,25 @@ fun MainScreen(
     updateScore: (Player, Player, Int) -> Unit,
     draw: () -> Unit,
     requiredAllPlayerName: () -> Unit,
-    isNameRepeated: (String) -> Boolean
+    isNameRepeated: (String) -> Boolean,
+    players: () -> List<Player>,
+    resetBanker: (Int, Boolean, Boolean) -> Unit
 ) {
+    var showSettleDialog by remember { mutableStateOf(false) }
+    var showBankerDialog by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(modifier = Modifier.padding(15.dp)) {
-            ElevatedButton(onClick = { }) {
+            FilledTonalButton(onClick = {
+                if (isAllPlayerNamed()) {
+                    showBankerDialog = true
+                } else {
+                    requiredAllPlayerName()
+                }
+            }) {
                 Text(
                     text = "${round}圈${wind}風",
                     fontSize = 16.sp,
@@ -110,6 +124,15 @@ fun MainScreen(
                 Button(onClick = draw) {
                     Text(text = "流局")
                 }
+                Button(onClick = {
+                    if (isAllPlayerNamed()) {
+                        showSettleDialog = true
+                    } else {
+                        requiredAllPlayerName()
+                    }
+                }) {
+                    Text(text = "結算")
+                }
             }
             PlayerCard(
                 Modifier.weight(1f),
@@ -156,5 +179,18 @@ fun MainScreen(
             )
             Spacer(modifier = Modifier.weight(1f))
         }
+    }
+    if (showBankerDialog) {
+        BankerDialog(
+            onDismiss = { showBankerDialog = false },
+            getPlayerByDirection = selectedPlayer,
+            resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
+                resetBanker(bankerIndex, resetContinue, resetRoundWind)
+                showBankerDialog = false
+            }
+        )
+    }
+    if (showSettleDialog) {
+        SettleDialog(onDismiss = { showSettleDialog = false }, players = players)
     }
 }
