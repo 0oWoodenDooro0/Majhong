@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.majhong.database.Majhong
 import com.example.majhong.database.MajhongDao
 import com.example.majhong.database.MajhongDatabaseEvent
+import com.example.majhong.database.MajhongHistory
+import com.example.majhong.database.MajhongHistoryDao
 import com.example.majhong.database.Player
 import com.example.majhong.database.PlayerDao
 import kotlinx.coroutines.launch
@@ -15,7 +17,9 @@ import kotlinx.coroutines.launch
 fun Boolean.toInt() = if (this) 1 else 0
 
 class MajhongViewModel(
-    private val playerDao: PlayerDao, private val majhongDao: MajhongDao
+    private val playerDao: PlayerDao,
+    private val majhongDao: MajhongDao,
+    private val majhongHistoryDao: MajhongHistoryDao
 ) : ViewModel() {
 
     var players by mutableStateOf(listOf(Player(), Player(), Player(), Player()))
@@ -145,6 +149,39 @@ class MajhongViewModel(
                     onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
                 }
             }
+
+            is MajhongDatabaseEvent.UpsertMajhongHistory -> {
+                viewModelScope.launch {
+                    majhongHistoryDao.upsertMajhongHistory(
+                        MajhongHistory(
+                            event.players[0].id,
+                            event.players[0].score,
+                            event.players[1].id,
+                            event.players[1].score,
+                            event.players[2].id,
+                            event.players[2].score,
+                            event.players[3].id,
+                            event.players[3].score,
+                            banker,
+                            continueToBank,
+                            round,
+                            wind
+                        )
+                    )
+                }
+            }
+
+            is MajhongDatabaseEvent.DeleteAllMajhongHistory -> {
+                viewModelScope.launch {
+                    majhongHistoryDao.deleteAllMajhongHistory()
+                }
+            }
+
+            is MajhongDatabaseEvent.DeleteMajhongHistoryById -> {
+                viewModelScope.launch {
+                    majhongHistoryDao.deleteMajhongHistoryById(event.id)
+                }
+            }
         }
     }
 
@@ -159,10 +196,10 @@ class MajhongViewModel(
         return Player()
     }
 
-    fun resetBanker(bankerIndex: Int, resetContinue: Boolean, resetRoundWind: Boolean){
+    fun resetBanker(bankerIndex: Int, resetContinue: Boolean, resetRoundWind: Boolean) {
         banker = bankerIndex
-        if(resetContinue) continueToBank = 0
-        if(resetRoundWind) {
+        if (resetContinue) continueToBank = 0
+        if (resetRoundWind) {
             wind = 0
             round = 0
         }
@@ -203,7 +240,7 @@ class MajhongViewModel(
                 )
             )
         )
-        onDatabaseEvent(MajhongDatabaseEvent.InitMajhongAndPlayerDatabase)
+        onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
     }
 
     private fun updatePlayerScore(player: Player, score: Int) {
@@ -272,38 +309,44 @@ class MajhongViewModel(
         val selfDrawAndNotBanker = selfDraw && !isBanker
         val currentTotal =
             (baseTai + tai * numberOfTai + isBanker.toInt() * tai * (2 * continueToBank + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai * (2 * continueToBank + 1)
+        val playerList = mutableListOf(Player(), Player(), Player(), Player())
         if (selfDrawAndNotBanker) {
             for (i in players) {
                 if (currentPlayer != i && i.direction != -1) {
-                    if (i != getBanker()) {
-                        updatePlayerScore(i, -(baseTai + tai * numberOfTai))
+                    val score = if (i != getBanker()) {
+                        -(baseTai + tai * numberOfTai)
                     } else {
-                        updatePlayerScore(
-                            i, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
-                        )
+                        -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
                     }
+                    updatePlayerScore(i, score)
+                    playerList[i.direction] = Player(id = i.id, score = score)
                 }
             }
         } else if (selfDraw) {
             for (i in players) {
                 if (currentPlayer != i && i.direction != -1) {
-                    updatePlayerScore(
-                        i, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
-                    )
+                    val score = -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
+                    updatePlayerScore(i, score)
+                    playerList[i.direction] = Player(id = i.id, score = score)
                 }
             }
         } else if (isBanker) {
-            updatePlayerScore(
-                selectedPlayer, -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
-            )
+            val score = -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
+            updatePlayerScore(selectedPlayer, score)
+            playerList[selectedPlayer.direction] = Player(id = selectedPlayer.id, score = score)
         } else {
-            updatePlayerScore(selectedPlayer, -(baseTai + tai * numberOfTai))
+            val score = -(baseTai + tai * numberOfTai)
+            updatePlayerScore(selectedPlayer, score)
+            playerList[selectedPlayer.direction] = Player(id = selectedPlayer.id, score = score)
         }
         updatePlayerScore(currentPlayer, currentTotal)
+        playerList[currentPlayer.direction] =
+            Player(id = currentPlayer.id, score = currentTotal)
         if (playerIsBanker(currentPlayer)) {
             updateContinueToBank()
         } else {
             updateNextBanker()
         }
+        onDatabaseEvent(MajhongDatabaseEvent.UpsertMajhongHistory(playerList))
     }
 }

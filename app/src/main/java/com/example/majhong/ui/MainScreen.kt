@@ -185,8 +185,8 @@ fun MainScreen(
         BankerDialog(
             onDismiss = { showBankerDialog = false },
             getPlayerByDirection = selectedPlayer,
-            resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
-                resetBanker(bankerIndex, resetContinue, resetRoundWind)
+            resetBanker = { index, resetContinue, resetRoundWind ->
+                resetBanker(index, resetContinue, resetRoundWind)
                 showBankerDialog = false
             },
             bankerIndex = bankerIndex

@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
     private val majhongViewModel by viewModels<MajhongViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MajhongViewModel(db.playerDao, db.majhongDao) as T
+                return MajhongViewModel(db.playerDao, db.majhongDao, db.majhongHistoryDao) as T
             }
         }
     })
@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
                                         newToClearPlayer
                                     )
                                 )
+                                majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.DeleteAllMajhongHistory)
                             },
                             AddPlayer = { name ->
                                 majhongViewModel.onDatabaseEvent(
