@@ -10,4 +10,6 @@
     <string name="dice_content">Dice</string>
     <string name="remove_content">remove</string>
     <string name="error_content">error</string>
+    <string name="sport_content">game</string>
+    <string name="chart_content">statistics</string>
 </resources>
