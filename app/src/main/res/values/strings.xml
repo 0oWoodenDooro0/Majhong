@@ -12,4 +12,5 @@
     <string name="error_content">error</string>
     <string name="sport_content">game</string>
     <string name="chart_content">statistics</string>
+    <string name="list_content">list</string>
 </resources>

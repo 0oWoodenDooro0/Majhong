@@ -229,6 +229,25 @@ class MajhongViewModel(
                     onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
                 }
             }
+
+            is MajhongDatabaseEvent.UpdatePlayerWinCountById -> {
+                viewModelScope.launch {
+                    playerDao.updatePlayerWinCountById(event.count, event.id)
+                }
+            }
+
+            is MajhongDatabaseEvent.UpdatePlayerSelfDrawnCountById -> {
+                viewModelScope.launch {
+                    playerDao.updatePlayerSelfDrawnCountById(event.count, event.id)
+                }
+            }
+
+            is MajhongDatabaseEvent.UpdatePlayerChunkCountById -> {
+                viewModelScope.launch {
+                    playerDao.updatePlayerChunkCountById(event.count, event.id)
+                }
+            }
+
         }
     }
 
@@ -358,6 +377,7 @@ class MajhongViewModel(
             (baseTai + tai * numberOfTai + isBanker.toInt() * tai * (2 * continueToBank + 1)) * (1 + selfDraw.toInt() * 2) + selfDrawAndNotBanker.toInt() * tai * (2 * continueToBank + 1)
         val playerList = mutableListOf(Player(), Player(), Player(), Player())
         if (selfDrawAndNotBanker) {
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerSelfDrawnCountById(id = currentPlayer.id, count = currentPlayer.selfDrawnCount + 1))
             for (i in players) {
                 if (currentPlayer != i && i.direction != -1) {
                     val score = if (i != getBanker()) {
@@ -370,6 +390,7 @@ class MajhongViewModel(
                 }
             }
         } else if (selfDraw) {
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerSelfDrawnCountById(id = currentPlayer.id, count = currentPlayer.selfDrawnCount + 1))
             for (i in players) {
                 if (currentPlayer != i && i.direction != -1) {
                     val score = -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
@@ -378,11 +399,15 @@ class MajhongViewModel(
                 }
             }
         } else if (isBanker) {
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerWinCountById(id = currentPlayer.id, count = currentPlayer.winCount + 1))
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerChunkCountById(id = selectedPlayer.id, count = selectedPlayer.chunkCount + 1))
             val score = -(baseTai + tai * numberOfTai + tai * (2 * continueToBank + 1))
             updatePlayerScore(selectedPlayer, score)
             playerList[selectedPlayer.direction] =
                 Player(id = selectedPlayer.id, score = score)
         } else {
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerWinCountById(id = currentPlayer.id, count = currentPlayer.winCount + 1))
+            onDatabaseEvent(MajhongDatabaseEvent.UpdatePlayerChunkCountById(id = selectedPlayer.id, count = selectedPlayer.chunkCount + 1))
             val score = -(baseTai + tai * numberOfTai)
             updatePlayerScore(selectedPlayer, score)
             playerList[selectedPlayer.direction] =

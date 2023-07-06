@@ -18,6 +18,12 @@ interface PlayerDao {
 
     @Query("UPDATE player SET score=:score WHERE id=:id")
     fun updatePlayerScoreById(score: Int, id: Int)
+    @Query("UPDATE player SET winCount=:count WHERE id=:id")
+    fun updatePlayerWinCountById(count: Int, id: Int)
+    @Query("UPDATE player SET selfDrawnCount=:count WHERE id=:id")
+    fun updatePlayerSelfDrawnCountById(count: Int, id: Int)
+    @Query("UPDATE player SET chunkCount=:count WHERE id=:id")
+    fun updatePlayerChunkCountById(count: Int, id: Int)
 
     @Query("DELETE FROM player")
     fun deleteAllPlayer()

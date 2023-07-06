@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             } else if (page == 1) {
-                                ChartScreen()
+                                ChartScreen(playerList = { majhongViewModel.players })
                             }
                         }
                     }

@@ -17,4 +17,7 @@ sealed interface MajhongDatabaseEvent {
     data class UpsertMajhongHistory(val players: List<Player>) : MajhongDatabaseEvent
     object DeleteAllMajhongHistory : MajhongDatabaseEvent
     object Undo : MajhongDatabaseEvent
+    data class UpdatePlayerChunkCountById(val id: Int, val count: Int) : MajhongDatabaseEvent
+    data class UpdatePlayerSelfDrawnCountById(val id: Int, val count: Int) : MajhongDatabaseEvent
+    data class UpdatePlayerWinCountById(val id: Int, val count: Int) : MajhongDatabaseEvent
 }

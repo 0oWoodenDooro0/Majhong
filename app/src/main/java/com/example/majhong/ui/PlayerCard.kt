@@ -76,7 +76,8 @@ fun PlayerCard(
         })
     }
     Column(modifier = modifier) {
-        Card(shape = RoundedCornerShape(15.dp),
+        Card(
+            shape = RoundedCornerShape(15.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(5.dp),

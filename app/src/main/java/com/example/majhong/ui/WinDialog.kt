@@ -122,9 +122,7 @@ fun WinDialog(
                         }
                     }
                 }
-                Divider(
-                    modifier = Modifier.fillMaxWidth(), thickness = 2.dp
-                )
+                Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
