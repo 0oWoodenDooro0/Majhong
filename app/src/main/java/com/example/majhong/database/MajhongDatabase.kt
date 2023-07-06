@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [Player::class, Majhong::class, MajhongHistory::class],
-    version = 3
+    version = 6
 )
 abstract class MajhongDatabase : RoomDatabase() {
     abstract val playerDao: PlayerDao

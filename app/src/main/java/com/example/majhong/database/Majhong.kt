@@ -13,6 +13,7 @@ data class Majhong(
     val tai: Int,
     val drawToContinue: Boolean,
     val newToClearPlayer: Boolean,
+    val historySize: Int,
     @PrimaryKey
     val id: Int = 0
 )

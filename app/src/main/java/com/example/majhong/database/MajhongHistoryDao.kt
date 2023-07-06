@@ -14,4 +14,7 @@ interface MajhongHistoryDao {
 
     @Query("DELETE FROM majhonghistory")
     fun deleteAllMajhongHistory()
+
+    @Query("SELECT * FROM majhonghistory WHERE id=:id")
+    fun findMajhongHistoryById(id: Int): MajhongHistory?
 }

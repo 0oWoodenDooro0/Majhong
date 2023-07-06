@@ -16,5 +16,5 @@ sealed interface MajhongDatabaseEvent {
     data class SwapPlayer(val player1: Player, val player2: Player) : MajhongDatabaseEvent
     data class UpsertMajhongHistory(val players: List<Player>) : MajhongDatabaseEvent
     object DeleteAllMajhongHistory : MajhongDatabaseEvent
-    data class DeleteMajhongHistoryById(val id: Int) : MajhongDatabaseEvent
+    object Undo : MajhongDatabaseEvent
 }

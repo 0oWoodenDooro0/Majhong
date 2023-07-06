@@ -104,6 +104,9 @@ class MainActivity : ComponentActivity() {
                                         duration = SnackbarDuration.Short
                                     )
                                 }
+                            },
+                            onUndoClick = {
+                                majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.Undo)
                             }
                         )
                     }

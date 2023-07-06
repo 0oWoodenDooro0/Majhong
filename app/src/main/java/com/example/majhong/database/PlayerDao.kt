@@ -16,6 +16,9 @@ interface PlayerDao {
     @Query("UPDATE player SET score=:score WHERE direction=:direction")
     fun updatePlayerScoreByDirection(score: Int, direction: Int)
 
+    @Query("UPDATE player SET score=:score WHERE id=:id")
+    fun updatePlayerScoreById(score: Int, id: Int)
+
     @Query("DELETE FROM player")
     fun deleteAllPlayer()
 
@@ -24,6 +27,9 @@ interface PlayerDao {
 
     @Query("SELECT * FROM player WHERE direction=:direction")
     fun getPlayerByDirection(direction: Int): Player?
+
+    @Query("SELECT * FROM player WHERE id=:id")
+    fun getPlayerById(id: Int): Player
 
     @Query("SELECT * FROM player")
     fun getAllPlayer(): List<Player>

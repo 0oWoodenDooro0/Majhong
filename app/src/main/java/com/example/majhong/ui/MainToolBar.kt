@@ -34,7 +34,8 @@ fun MainToolBar(
     swapPlayer: (Player, Player) -> Unit,
     isNameRepeated: (String) -> Boolean,
     isAllPlayerNamed: () -> Boolean,
-    requiredAllPlayerName: () -> Unit
+    requiredAllPlayerName: () -> Unit,
+    onUndoClick: () -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
@@ -51,7 +52,7 @@ fun MainToolBar(
             actionDescription = "新牌局")
         ActionButton(modifier = Modifier
             .weight(1f)
-            .clickable { }
+            .clickable { onUndoClick() }
             .padding(10.dp),
             painterResourceId = R.drawable.baseline_undo_24,
             stringResource = R.string.undo_content,
