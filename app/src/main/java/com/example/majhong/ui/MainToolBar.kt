@@ -20,22 +20,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.majhong.R
+import com.example.majhong.database.MajhongEvent
 import com.example.majhong.database.Player
 
 @Composable
 fun MainToolBar(
+    onEvent: (MajhongEvent) -> Unit,
     baseTai: () -> Int,
     tai: () -> Int,
     drawToContinue: () -> Boolean,
     newToClearPlayer: () -> Boolean,
-    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
-    AddPlayer: (String) -> Unit,
     players: () -> List<Player>,
-    swapPlayer: (Player, Player) -> Unit,
     isNameRepeated: (String) -> Boolean,
     isAllPlayerNamed: () -> Boolean,
-    requiredAllPlayerName: () -> Unit,
-    onUndoClick: () -> Unit
+    requiredAllPlayerName: () -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
@@ -52,7 +50,7 @@ fun MainToolBar(
             actionDescription = "新牌局")
         ActionButton(modifier = Modifier
             .weight(1f)
-            .clickable { onUndoClick() }
+            .clickable { onEvent(MajhongEvent.Undo) }
             .padding(10.dp),
             painterResourceId = R.drawable.baseline_undo_24,
             stringResource = R.string.undo_content,
@@ -103,21 +101,21 @@ fun MainToolBar(
             newToClearPlayer = newToClearPlayer,
             onDismiss = { showModifyRulesDialog = false },
             onModifyRules = { baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer ->
-                onModifyRules(baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer)
+                onEvent(MajhongEvent.ModifyRules(baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer))
                 showModifyRulesDialog = false
             })
     } else if (showAddPlayerDialog) {
         AddPlayerDialog(onDismiss = { showAddPlayerDialog = false },
             isNameRepeated = isNameRepeated,
             buttonOnClick = { name ->
-                AddPlayer(name)
+                onEvent(MajhongEvent.AddNewPlayer(Player(), name))
                 showAddPlayerDialog = false
             })
     } else if (showTranspositionDialog) {
         TranspositionDialog(onDismiss = { showTranspositionDialog = false },
             players = players,
             swapPlayers = { player1, player2 ->
-                swapPlayer(player1, player2)
+                onEvent(MajhongEvent.SwapPlayer(player1, player2))
                 showTranspositionDialog = false
             })
     } else if (showDiceDialog) {

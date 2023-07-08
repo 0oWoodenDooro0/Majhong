@@ -25,12 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.majhong.R
+import com.example.majhong.database.MajhongEvent
 import com.example.majhong.database.Player
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerCard(
+    onEvent: (MajhongEvent) -> Unit,
     modifier: Modifier,
     currentPlayer: Player,
     currentPlayerIsBanker: (Player) -> Boolean,
@@ -42,7 +44,6 @@ fun PlayerCard(
     isAllPlayerNamed: () -> Boolean,
     calculateTotal: (Player, Player, Int) -> Int,
     updateName: (Player, String) -> Unit,
-    updateScore: (Player, Player, Int) -> Unit,
     requiredAllPlayerName: () -> Unit,
     isNameRepeated: (String) -> Boolean
 ) {
@@ -63,7 +64,7 @@ fun PlayerCard(
                 calculateTotal(currentPlayer, selected, numberOfTai)
             },
             buttonOnClick = { selected, numberOfTai ->
-                updateScore(currentPlayer, selected, numberOfTai)
+                onEvent(MajhongEvent.UpdateScore(currentPlayer, selected, numberOfTai))
                 showWinDialog = false
             })
     }

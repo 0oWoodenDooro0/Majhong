@@ -23,8 +23,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
-import com.example.majhong.database.MajhongDatabaseEvent
-import com.example.majhong.database.Player
 import com.example.majhong.ui.ChartScreen
 import com.example.majhong.ui.GameScreen
 import com.example.majhong.ui.MainTab
@@ -71,6 +69,7 @@ class MainActivity : ComponentActivity() {
                         Column(modifier = Modifier.padding(padding)) {
                             if (page == 0) {
                                 GameScreen(
+                                    onEvent = majhongViewModel::onEvent,
                                     round = majhongViewModel.directions[majhongViewModel.round],
                                     wind = majhongViewModel.directions[majhongViewModel.wind],
                                     currentPlayerIsBanker = { current ->
@@ -94,18 +93,6 @@ class MainActivity : ComponentActivity() {
                                             numberOfTai
                                         )
                                     },
-                                    updateName = { current, playerName, direction ->
-                                        majhongViewModel.updatePlayerName(
-                                            current,
-                                            playerName,
-                                            direction
-                                        )
-                                    },
-                                    updateScore =
-                                    { current, selected, numberOfTai ->
-                                        majhongViewModel.updateScore(current, selected, numberOfTai)
-                                    },
-                                    draw = { majhongViewModel.draw() },
                                     requiredAllPlayerName = {
                                         scope.launch {
                                             snackBarHostState.showSnackbar(
@@ -118,46 +105,9 @@ class MainActivity : ComponentActivity() {
                                         majhongViewModel.isNameRepeated(name)
                                     },
                                     players = { majhongViewModel.players },
-                                    resetBanker = { bankerIndex, resetContinue, resetRoundWind ->
-                                        majhongViewModel.resetBanker(
-                                            bankerIndex,
-                                            resetContinue,
-                                            resetRoundWind
-                                        )
-                                    },
                                     bankerIndex = { majhongViewModel.banker },
                                     drawToContinue = { majhongViewModel.drawToContinue },
-                                    newToClearPlayer = { majhongViewModel.newToClearPlayer },
-                                    onModifyRules = { baseTai, tai, drawToContinue, newToClearPlayer ->
-                                        majhongViewModel.onDatabaseEvent(
-                                            MajhongDatabaseEvent.UpsertNewMajhongDatabase(
-                                                baseTai,
-                                                tai,
-                                                drawToContinue,
-                                                newToClearPlayer
-                                            )
-                                        )
-                                        majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.DeleteAllMajhongHistory)
-                                    },
-                                    AddPlayer = { name ->
-                                        majhongViewModel.onDatabaseEvent(
-                                            MajhongDatabaseEvent.UpsertPlayer(
-                                                Player(name)
-                                            )
-                                        )
-                                        majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.GetAllPlayer)
-                                    },
-                                    swapPlayer = { player1, player2 ->
-                                        majhongViewModel.onDatabaseEvent(
-                                            MajhongDatabaseEvent.SwapPlayer(
-                                                player1,
-                                                player2
-                                            )
-                                        )
-                                    },
-                                    onUndoClick = {
-                                        majhongViewModel.onDatabaseEvent(MajhongDatabaseEvent.Undo)
-                                    }
+                                    newToClearPlayer = { majhongViewModel.newToClearPlayer }
                                 )
                             } else if (page == 1) {
                                 ChartScreen(playerList = { majhongViewModel.players })

@@ -22,10 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.majhong.database.MajhongEvent
 import com.example.majhong.database.Player
 
 @Composable
 fun GameScreen(
+    onEvent: (MajhongEvent) -> Unit,
     round: String,
     wind: String,
     currentPlayerIsBanker: (Player) -> Boolean,
@@ -36,38 +38,27 @@ fun GameScreen(
     tai: () -> Int,
     isAllPlayerNamed: () -> Boolean,
     calculateTotal: (Player, Player, Int) -> Int,
-    updateName: (Player, String, Int) -> Unit,
-    updateScore: (Player, Player, Int) -> Unit,
-    draw: () -> Unit,
     requiredAllPlayerName: () -> Unit,
     isNameRepeated: (String) -> Boolean,
     players: () -> List<Player>,
-    resetBanker: (Int, Boolean, Boolean) -> Unit,
     bankerIndex: () -> Int,
     drawToContinue: () -> Boolean,
-    newToClearPlayer: () -> Boolean,
-    onModifyRules: (Int, Int, Boolean, Boolean) -> Unit,
-    AddPlayer: (String) -> Unit,
-    swapPlayer: (Player, Player) -> Unit,
-    onUndoClick: () -> Unit
+    newToClearPlayer: () -> Boolean
 ) {
     var showSettleDialog by remember { mutableStateOf(false) }
     var showBankerDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             MainToolBar(
+                onEvent = onEvent,
                 baseTai = baseTai,
                 tai = tai,
                 drawToContinue = drawToContinue,
                 newToClearPlayer = newToClearPlayer,
-                onModifyRules = onModifyRules,
-                AddPlayer = AddPlayer,
                 players = players,
                 isNameRepeated = isNameRepeated,
-                swapPlayer = swapPlayer,
                 isAllPlayerNamed = isAllPlayerNamed,
-                requiredAllPlayerName = requiredAllPlayerName,
-                onUndoClick = onUndoClick
+                requiredAllPlayerName = requiredAllPlayerName
             )
         }
     ) { padding ->
@@ -100,6 +91,7 @@ fun GameScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 PlayerCard(
+                    onEvent,
                     Modifier.weight(1f),
                     selectedPlayer(2),
                     currentPlayerIsBanker,
@@ -110,10 +102,9 @@ fun GameScreen(
                     tai,
                     isAllPlayerNamed,
                     calculateTotal,
-                    { current, playerName ->
-                        updateName(current, playerName, 2)
+                    { current, name ->
+                        onEvent(MajhongEvent.AddNewPlayer(current, name, 2))
                     },
-                    updateScore,
                     requiredAllPlayerName,
                     isNameRepeated
                 )
@@ -125,6 +116,7 @@ fun GameScreen(
                     .height(175.dp)
             ) {
                 PlayerCard(
+                    onEvent,
                     Modifier.weight(1f),
                     selectedPlayer(3),
                     currentPlayerIsBanker,
@@ -135,10 +127,9 @@ fun GameScreen(
                     tai,
                     isAllPlayerNamed,
                     calculateTotal,
-                    { current, playerName ->
-                        updateName(current, playerName, 3)
+                    { current, name ->
+                        onEvent(MajhongEvent.AddNewPlayer(current, name, 3))
                     },
-                    updateScore,
                     requiredAllPlayerName,
                     isNameRepeated
                 )
@@ -149,7 +140,7 @@ fun GameScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Button(onClick = draw) {
+                    Button(onClick = { onEvent(MajhongEvent.Draw) }) {
                         Text(text = "流局")
                     }
                     Button(onClick = {
@@ -163,6 +154,7 @@ fun GameScreen(
                     }
                 }
                 PlayerCard(
+                    onEvent,
                     Modifier.weight(1f),
                     selectedPlayer(1),
                     currentPlayerIsBanker,
@@ -173,10 +165,9 @@ fun GameScreen(
                     tai,
                     isAllPlayerNamed,
                     calculateTotal,
-                    { current, playerName ->
-                        updateName(current, playerName, 1)
+                    { current, name ->
+                        onEvent(MajhongEvent.AddNewPlayer(current, name, 1))
                     },
-                    updateScore,
                     requiredAllPlayerName,
                     isNameRepeated
                 )
@@ -188,6 +179,7 @@ fun GameScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 PlayerCard(
+                    onEvent,
                     Modifier.weight(1f),
                     selectedPlayer(0),
                     currentPlayerIsBanker,
@@ -198,10 +190,9 @@ fun GameScreen(
                     tai,
                     isAllPlayerNamed,
                     calculateTotal,
-                    { current, playerName ->
-                        updateName(current, playerName, 0)
+                    { current, name ->
+                        onEvent(MajhongEvent.AddNewPlayer(current, name, 0))
                     },
-                    updateScore,
                     requiredAllPlayerName,
                     isNameRepeated
                 )
@@ -213,7 +204,7 @@ fun GameScreen(
                 onDismiss = { showBankerDialog = false },
                 getPlayerByDirection = selectedPlayer,
                 resetBanker = { index, resetContinue, resetRoundWind ->
-                    resetBanker(index, resetContinue, resetRoundWind)
+                    onEvent(MajhongEvent.ResetBanker(index, resetContinue, resetRoundWind))
                     showBankerDialog = false
                 },
                 bankerIndex = bankerIndex
