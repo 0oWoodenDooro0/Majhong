@@ -7,14 +7,14 @@ import androidx.room.Upsert
 @Dao
 interface MajhongHistoryDao {
     @Upsert
-    fun upsertMajhongHistory(majhongHistory: MajhongHistory)
+    suspend fun upsertMajhongHistory(majhongHistory: MajhongHistory)
 
     @Query("DELETE FROM majhonghistory WHERE id=:id")
-    fun deleteMajhongHistoryById(id: Int)
+    suspend fun deleteMajhongHistoryById(id: Int)
 
     @Query("DELETE FROM majhonghistory")
-    fun deleteAllMajhongHistory()
+    suspend fun deleteAllMajhongHistory()
 
     @Query("SELECT * FROM majhonghistory WHERE id=:id")
-    fun findMajhongHistoryById(id: Int): MajhongHistory?
+    suspend fun findMajhongHistoryById(id: Int): MajhongHistory?
 }

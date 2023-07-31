@@ -23,9 +23,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.majhong.database.MajhongDatabase
-import com.example.majhong.ui.ChartScreen
+import com.example.majhong.ui.BottomNavigationBar
+import com.example.majhong.ui.CountScreen
 import com.example.majhong.ui.GameScreen
-import com.example.majhong.ui.MainTab
 import com.example.majhong.ui.theme.MajhongTheme
 import kotlinx.coroutines.launch
 
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = {
                         SnackbarHost(snackBarHostState) { Snackbar { Text(text = "請先加入所有玩家") } }
                     },
-                    bottomBar = { MainTab(pageState) }
+                    bottomBar = { BottomNavigationBar(pageState) }
                 ) { padding ->
                     HorizontalPager(pageCount = 2, state = pageState) { page ->
                         Column(modifier = Modifier.padding(padding)) {
@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                     newToClearPlayer = { majhongViewModel.newToClearPlayer }
                                 )
                             } else if (page == 1) {
-                                ChartScreen(playerList = { majhongViewModel.players })
+                                CountScreen(playerList = { majhongViewModel.players })
                             }
                         }
                     }

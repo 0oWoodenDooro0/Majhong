@@ -7,8 +7,8 @@ import androidx.room.Upsert
 @Dao
 interface MajhongDao {
     @Upsert
-    fun upsertMajhong(majhong: Majhong)
+    suspend fun upsertMajhong(majhong: Majhong)
 
     @Query("SELECT * FROM majhong WHERE id=0")
-    fun getMajhongById(): Majhong?
+    suspend fun getMajhongById(): Majhong?
 }

@@ -36,6 +36,7 @@ fun MainToolBar(
     requiredAllPlayerName: () -> Unit
 ) {
     var showNewDialog by remember { mutableStateOf(false) }
+    var showUndoDialog by remember { mutableStateOf(false) }
     var showModifyRulesDialog by remember { mutableStateOf(false) }
     var showAddPlayerDialog by remember { mutableStateOf(false) }
     var showTranspositionDialog by remember { mutableStateOf(false) }
@@ -50,7 +51,7 @@ fun MainToolBar(
             actionDescription = "新牌局")
         ActionButton(modifier = Modifier
             .weight(1f)
-            .clickable { onEvent(MajhongEvent.Undo) }
+            .clickable { showUndoDialog = true }
             .padding(10.dp),
             painterResourceId = R.drawable.baseline_undo_24,
             stringResource = R.string.undo_content,
@@ -94,6 +95,11 @@ fun MainToolBar(
             showNewDialog = false
             showModifyRulesDialog = true
         })
+    } else if (showUndoDialog) {
+        UndoDialog(onDismiss = { showUndoDialog = false }, onConfirm = {
+            onEvent(MajhongEvent.Undo)
+            showUndoDialog = false
+        })
     } else if (showModifyRulesDialog) {
         ModifyRulesDialog(baseTai = baseTai,
             tai = tai,
@@ -101,7 +107,14 @@ fun MainToolBar(
             newToClearPlayer = newToClearPlayer,
             onDismiss = { showModifyRulesDialog = false },
             onModifyRules = { baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer ->
-                onEvent(MajhongEvent.ModifyRules(baseTaiValue, taiValue, switchOfDraw, switchOfClearPlayer))
+                onEvent(
+                    MajhongEvent.ModifyRules(
+                        baseTaiValue,
+                        taiValue,
+                        switchOfDraw,
+                        switchOfClearPlayer
+                    )
+                )
                 showModifyRulesDialog = false
             })
     } else if (showAddPlayerDialog) {

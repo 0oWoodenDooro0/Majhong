@@ -53,56 +53,6 @@ class MajhongViewModel(
 
     fun onEvent(event: MajhongEvent) {
         when (event) {
-            is MajhongEvent.InitMajhongAndPlayer -> {
-                viewModelScope.launch {
-                    players = playerDao.getAllPlayer()
-                    val majhong = majhongDao.getMajhongById()
-                    if (majhong != null) {
-                        banker = majhong.banker
-                        continueToBank = majhong.continueToBank
-                        round = majhong.round
-                        wind = majhong.wind
-                        baseTai = majhong.baseTai
-                        tai = majhong.tai
-                        drawToContinue = majhong.drawToContinue
-                        newToClearPlayer = majhong.newToClearPlayer
-                        historySize = majhong.historySize
-                    } else {
-                        majhongDao.upsertMajhong(
-                            Majhong(
-                                banker = 0,
-                                continueToBank = 0,
-                                round = 0,
-                                wind = 0,
-                                baseTai = 30,
-                                tai = 10,
-                                drawToContinue = true,
-                                newToClearPlayer = false,
-                                historySize = 0
-                            )
-                        )
-                    }
-                }
-            }
-
-            is MajhongEvent.UpsertMajhong -> {
-                viewModelScope.launch {
-                    majhongDao.upsertMajhong(
-                        Majhong(
-                            banker,
-                            continueToBank,
-                            round,
-                            wind,
-                            baseTai,
-                            tai,
-                            drawToContinue,
-                            newToClearPlayer,
-                            historySize
-                        )
-                    )
-                }
-            }
-
             is MajhongEvent.ModifyRules -> {
                 viewModelScope.launch {
                     majhongDao.upsertMajhong(
@@ -121,8 +71,8 @@ class MajhongViewModel(
                     if (event.newToClearPlayer) playerDao.deleteAllPlayer()
                     else playerDao.setAllPlayerScoreToZero()
                     historySize = 0
-                    onEvent(MajhongEvent.InitMajhongAndPlayer)
                     majhongHistoryDao.deleteAllMajhongHistory()
+                    initMajhong()
                 }
             }
 
@@ -134,7 +84,7 @@ class MajhongViewModel(
                     playerDao.updatePlayerDirectionById(
                         event.player1.direction, event.player2.id
                     )
-                    onEvent(MajhongEvent.InitMajhongAndPlayer)
+                    initMajhong()
                 }
             }
 
@@ -176,20 +126,15 @@ class MajhongViewModel(
                     round = history.round
                     majhongHistoryDao.deleteMajhongHistoryById(historySize)
                     historySize -= 1
-                    onEvent(MajhongEvent.UpsertMajhong)
                     players = playerDao.getAllPlayer()
+                    updateMajhongState()
                 }
             }
 
             is MajhongEvent.AddNewPlayer -> {
                 viewModelScope.launch {
-                    playerDao.upsertPlayer(
-                        event.player.copy(
-                            name = event.name,
-                            direction = event.direction
-                        )
-                    )
-                    players = playerDao.getAllPlayer()
+                    addNewPlayer(event.player.copy(name = event.name, direction = event.direction))
+                    players = getAllPlayer()
                 }
             }
 
@@ -211,7 +156,7 @@ class MajhongViewModel(
                             }
                             playerList[player.direction] = Player(id = player.id, score = score)
                             viewModelScope.launch {
-                                playerDao.upsertPlayer(player.copy(score = player.score + score))
+                                addPlayerScore(player, score)
                             }
                         }
                     }
@@ -222,7 +167,7 @@ class MajhongViewModel(
                                 -(baseTai + tai * event.numberOfTai + tai * (2 * continueToBank + 1))
                             playerList[player.direction] = Player(id = player.id, score = score)
                             viewModelScope.launch {
-                                playerDao.upsertPlayer(player.copy(score = player.score + score))
+                                addPlayerScore(player, score)
                             }
                         }
                     }
@@ -232,47 +177,28 @@ class MajhongViewModel(
                     playerList[event.selectedPlayer.direction] =
                         Player(id = event.selectedPlayer.id, score = score)
                     viewModelScope.launch {
-                        playerDao.upsertPlayer(event.selectedPlayer.copy(score = event.selectedPlayer.score + score))
+                        addPlayerScore(event.selectedPlayer, score)
                     }
                 } else {
                     val score = -(baseTai + tai * event.numberOfTai)
                     playerList[event.selectedPlayer.direction] =
                         Player(id = event.selectedPlayer.id, score = score)
                     viewModelScope.launch {
-                        playerDao.upsertPlayer(event.selectedPlayer.copy(score = event.selectedPlayer.score + score))
+                        addPlayerScore(event.selectedPlayer, score)
                     }
                 }
                 playerList[event.currentPlayer.direction] =
                     Player(id = event.currentPlayer.id, score = currentTotal)
                 viewModelScope.launch {
-                    playerDao.upsertPlayer(event.currentPlayer.copy(score = event.currentPlayer.score + currentTotal))
-                    historySize += 1
-                    majhongHistoryDao.upsertMajhongHistory(
-                        MajhongHistory(
-                            playerList[0].id,
-                            playerList[0].score,
-                            playerList[1].id,
-                            playerList[1].score,
-                            playerList[2].id,
-                            playerList[2].score,
-                            playerList[3].id,
-                            playerList[3].score,
-                            banker,
-                            continueToBank,
-                            round,
-                            wind,
-                            historySize
-                        )
-                    )
-                }
-                onEvent(MajhongEvent.UpsertMajhong)
-                if (playerIsBanker(event.currentPlayer)) {
-                    updateContinueToBank()
-                } else {
-                    updateNextBanker()
-                }
-                viewModelScope.launch {
-                    players = playerDao.getAllPlayer()
+                    addPlayerScore(event.currentPlayer, currentTotal)
+                    upsertMajhongHistory(playerList)
+                    if (playerIsBanker(event.currentPlayer)) {
+                        updateContinueToBank()
+                    } else {
+                        updateNextBanker()
+                    }
+                    players = getAllPlayer()
+                    updateMajhongState()
                 }
             }
 
@@ -283,18 +209,107 @@ class MajhongViewModel(
                     wind = 0
                     round = 0
                 }
-                onEvent(MajhongEvent.UpsertMajhong)
+                viewModelScope.launch {
+                    updateMajhongState()
+                }
             }
 
             is MajhongEvent.Draw -> {
+                viewModelScope.launch {
+                    upsertMajhongHistory(listOf(Player(), Player(), Player(), Player()))
+                }
                 if (drawToContinue) updateContinueToBank()
                 else updateNextBanker()
+                viewModelScope.launch {
+                    updateMajhongState()
+                }
             }
         }
     }
 
     init {
-        onEvent(MajhongEvent.InitMajhongAndPlayer)
+        initMajhong()
+    }
+
+    private fun initMajhong() {
+        viewModelScope.launch {
+            players = getAllPlayer()
+            val majhong = majhongDao.getMajhongById()
+            if (majhong != null) {
+                banker = majhong.banker
+                continueToBank = majhong.continueToBank
+                round = majhong.round
+                wind = majhong.wind
+                baseTai = majhong.baseTai
+                tai = majhong.tai
+                drawToContinue = majhong.drawToContinue
+                newToClearPlayer = majhong.newToClearPlayer
+                historySize = majhong.historySize
+            } else {
+                majhongDao.upsertMajhong(
+                    Majhong(
+                        banker = 0,
+                        continueToBank = 0,
+                        round = 0,
+                        wind = 0,
+                        baseTai = 30,
+                        tai = 10,
+                        drawToContinue = true,
+                        newToClearPlayer = false,
+                        historySize = 0
+                    )
+                )
+            }
+        }
+    }
+
+    private suspend fun updateMajhongState() {
+        majhongDao.upsertMajhong(
+            Majhong(
+                banker,
+                continueToBank,
+                round,
+                wind,
+                baseTai,
+                tai,
+                drawToContinue,
+                newToClearPlayer,
+                historySize
+            )
+        )
+    }
+
+    private suspend fun upsertMajhongHistory(playerList: List<Player>) {
+        historySize += 1
+        majhongHistoryDao.upsertMajhongHistory(
+            MajhongHistory(
+                playerList[0].id,
+                playerList[0].score,
+                playerList[1].id,
+                playerList[1].score,
+                playerList[2].id,
+                playerList[2].score,
+                playerList[3].id,
+                playerList[3].score,
+                banker,
+                continueToBank,
+                round,
+                wind,
+                historySize
+            )
+        )
+    }
+
+    private suspend fun getAllPlayer(): List<Player> {
+        return playerDao.getAllPlayer()
+    }
+
+    private suspend fun addPlayerScore(player: Player, score: Int) {
+        playerDao.updatePlayerScoreById(player.id, player.score + score)
+    }
+
+    private suspend fun addNewPlayer(player: Player) {
+        playerDao.upsertPlayer(player)
     }
 
     fun getPlayerByDirection(direction: Int): Player {
@@ -340,7 +355,6 @@ class MajhongViewModel(
 
     private fun updateContinueToBank() {
         continueToBank += 1
-        onEvent(MajhongEvent.UpsertMajhong)
     }
 
     private fun updateWind() {
@@ -348,7 +362,6 @@ class MajhongViewModel(
         if (wind == 0) {
             updateRound()
         }
-        onEvent(MajhongEvent.UpsertMajhong)
     }
 
     private fun updateRound() {

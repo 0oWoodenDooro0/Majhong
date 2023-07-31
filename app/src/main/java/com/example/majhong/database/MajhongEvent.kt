@@ -1,8 +1,6 @@
 package com.example.majhong.database
 
 sealed interface MajhongEvent {
-    object InitMajhongAndPlayer : MajhongEvent
-    object UpsertMajhong : MajhongEvent
     data class ModifyRules(
         val baseTai: Int,
         val tai: Int,
